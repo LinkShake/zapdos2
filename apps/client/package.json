@@ -1,6 +1,6 @@
 {
-  "name": "web",
-  "version": "0.0.0",
+  "name": "client",
+  "version": "0.1.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -14,20 +14,20 @@
     "@emotion/react": "^11.10.6",
     "@mantine/core": "^6.0.5",
     "@mantine/hooks": "^6.0.5",
+    "@types/node": "18.15.11",
+    "@types/react": "18.0.32",
+    "@types/react-dom": "18.0.11",
+    "eslint": "8.37.0",
     "graphql": "^16.6.0",
-    "next": "^13.1.1",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
+    "next": "13.2.4",
+    "react": "18.2.0",
+    "react-dom": "18.2.0",
+    "typescript": "5.0.3",
     "ui": "*"
   },
   "devDependencies": {
     "@babel/core": "^7.0.0",
-    "@types/node": "^17.0.12",
-    "@types/react": "^18.0.22",
-    "@types/react-dom": "^18.0.7",
-    "eslint": "7.32.0",
     "eslint-config-custom": "*",
-    "tsconfig": "*",
-    "typescript": "^4.5.3"
+    "tsconfig": "*"
   }
 }
