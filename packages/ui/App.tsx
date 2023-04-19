@@ -1,4 +1,5 @@
 import "./styles.css";
+import Image from "next/image";
 import React, { Dispatch, SetStateAction, useEffect, useState } from "react";
 import {
   AppShell,
@@ -15,11 +16,18 @@ import {
 } from "@mantine/core";
 import { IconMoonStars, IconSun } from "@tabler/icons-react";
 
+type Users = {
+  id: string;
+  username: string;
+  image: string;
+};
+
 interface AppShellProps {
   setTheme: Dispatch<SetStateAction<string>>;
   msgsArr: Array<{ text: string }>;
   sendMsg: ({ variables: { text } }: { variables: { text: string } }) => void;
   UserProfile: React.ReactNode;
+  users: Users[];
 }
 
 export const App: React.FC<AppShellProps> = ({
@@ -27,6 +35,7 @@ export const App: React.FC<AppShellProps> = ({
   msgsArr,
   sendMsg,
   UserProfile,
+  users,
 }) => {
   const theme = useMantineTheme();
   const arr = new Array(5).fill(0);
@@ -55,21 +64,21 @@ export const App: React.FC<AppShellProps> = ({
           width={{ sm: 200, lg: 300 }}
         >
           {/* <Text>Application navbar</Text> */}
-          {arr.map((_, idx) => (
+          {users?.map(({ id, username, image }) => (
             <div
-              key={idx}
+              key={id}
               onClick={() => {
                 setChat(() => {
                   setOpened(false);
                   return true;
                 });
-                console.log("clicked");
               }}
               style={{
                 border: "2px solid red",
               }}
             >
-              <h2>Chat {idx + 1}</h2>
+              <Image src={image} alt="user_profile" width={40} height={40} />
+              <h3>{username}</h3>
             </div>
           ))}
         </Navbar>

@@ -12,16 +12,17 @@ const schema: any = createSchema({
   typeDefs: `
         type Query {
             hello: String,
-            msgs: [Message]
+            msgs(id: String): [Message],
+            users: [User]
         }
 
         type Mutation {
-            sendMsg(text: String!): Message!
+            sendMsg(text: String!, from: String!, to: String!): Message!
             storeUser(id: String!, username: String!, image: String!): User!
         }
 
         type Subscription {
-            newMsg: Message!
+            newMsg(id: String!): Message!
         }
 
         type Message {
@@ -37,22 +38,40 @@ const schema: any = createSchema({
   resolvers: {
     Query: {
       hello: () => "hello from graphql-yoga",
-      msgs: () => prisma.message.findMany(),
+      msgs: (id: string) => {
+        console.log(id);
+        return prisma.message.findMany();
+      },
+      users: () => prisma.user.findMany(),
     },
     Subscription: {
       newMsg: {
-        subscribe: (_, __, ctx: GraphQLContext) =>
-          ctx.pubSub.subscribe("newMsg"),
+        subscribe: (_, args: { id: string }, ctx: GraphQLContext) =>
+          ctx.pubSub.subscribe(`newMsg_${args.id}`),
       },
     },
     Mutation: {
-      sendMsg: async (_, args: { text: string }, ctx: GraphQLContext) => {
+      sendMsg: async (
+        _,
+        args: { text: string; from: string; to: string },
+        ctx: GraphQLContext
+      ) => {
         await prisma.message.create({
           data: {
             text: args.text,
           },
         });
-        ctx.pubSub.publish("newMsg", { newMsg: { text: args.text } });
+        [args.from, args.to].forEach((id) => {
+          ctx.pubSub.publish(`newMsg_${id}`, {
+            newMsg: { text: args.text },
+          });
+        });
+        // ctx.pubSub.publish(`newMsg_${args.from}`, {
+        //   newMsg: { text: args.text },
+        // });
+        // ctx.pubSub.publish(`newMsg_${args.to}`, {
+        //   newMsg: { text: args.text },
+        // });
         return { text: args.text };
       },
       storeUser: async (_, args, ctx: GraphQLContext) => {

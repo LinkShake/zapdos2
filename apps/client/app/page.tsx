@@ -49,10 +49,31 @@ function Home() {
     loading,
     error,
     subscribeToMore,
+  } = useQuery(
+    gql`
+      query msgs($id: String) {
+        msgs(id: $id) {
+          text
+        }
+      }
+    `,
+    {
+      variables: {
+        id: user?.id,
+      },
+    }
+  );
+  const {
+    data: users,
+    loading: usersLoading,
+    error: err,
+    subscribeToMore: moreUsers,
   } = useQuery(gql`
     query {
-      msgs {
-        text
+      users {
+        id
+        username
+        image
       }
     }
   `);
@@ -65,6 +86,7 @@ function Home() {
   `);
   const [storeUser, { data: userData }] = useMutation(USER_MUTATION);
   console.log("userData: ", userData);
+  console.log("users: ", users);
 
   useEffect(() => {
     subscribeToMore({
@@ -104,6 +126,7 @@ function Home() {
           msgsArr={msgs?.msgs}
           sendMsg={sendMsg}
           UserProfile={<UserButton />}
+          users={users?.users}
         />
       </MantineProvider>
     </main>
