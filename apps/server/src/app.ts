@@ -147,3 +147,5 @@ app.post("/webhook", (req, res) => {
 });
 
 app.listen({ port: 4000 });
+
+export default app;
