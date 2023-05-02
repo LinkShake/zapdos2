@@ -5,7 +5,7 @@ import { GraphQLContext } from "./context";
 import { pubSub } from "./pubsub";
 import { prisma } from "../utils/prisma";
 
-const app = fastify({ logger: true });
+const app = fastify({ logger: false });
 const msgsArr: Array<{ text: string }> = [];
 
 const schema: any = createSchema({
@@ -39,7 +39,7 @@ const schema: any = createSchema({
     Query: {
       hello: () => "hello from graphql-yoga",
       msgs: (id: string) => {
-        console.log(id);
+        // console.log(id);
         return prisma.message.findMany();
       },
       users: () => prisma.user.findMany(),
@@ -110,12 +110,12 @@ const yoga = createYoga<{
   },
   // eslint-disable-next-line react-hooks/rules-of-hooks
   plugins: [useExtendContext(() => ({ pubSub }))],
-  logging: {
-    debug: (...args) => args.forEach((arg) => app.log.debug(arg)),
-    info: (...args) => args.forEach((arg) => app.log.info(arg)),
-    warn: (...args) => args.forEach((arg) => app.log.warn(arg)),
-    error: (...args) => args.forEach((arg) => app.log.error(arg)),
-  },
+  // logging: {
+  //   debug: (...args) => args.forEach((arg) => app.log.debug(arg)),
+  //   info: (...args) => args.forEach((arg) => app.log.info(arg)),
+  //   warn: (...args) => args.forEach((arg) => app.log.warn(arg)),
+  //   error: (...args) => args.forEach((arg) => app.log.error(arg)),
+  // },
 });
 
 console.log("hello world!");
@@ -140,6 +140,10 @@ app.route({
 
     return res;
   },
+});
+
+app.post("/webhook", (req, res) => {
+  console.log(req);
 });
 
 app.listen({ port: 4000 });
