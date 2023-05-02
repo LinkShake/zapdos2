@@ -7,7 +7,7 @@
     "build": "tsc",
     "watch": "tsc -w",
     "start": "node dist/app.js",
-    "start2": "ts-node api/app.js",
+    "start2": "ts-node src/app.ts",
     "dev": "nodemon --exec ts-node src/app.ts"
   },
   "keywords": [],
