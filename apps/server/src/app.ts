@@ -1,12 +1,22 @@
 import { createYoga, useExtendContext } from "graphql-yoga";
-import fastify, { FastifyRequest, FastifyReply } from "fastify";
+import fastify, {
+  FastifyRequest,
+  FastifyReply,
+  FastifyInstance,
+  FastifyServerOptions,
+} from "fastify";
 import { createSchema } from "graphql-yoga";
 import { GraphQLContext } from "./context";
 import { pubSub } from "./pubsub";
 import { prisma } from "../utils/prisma";
 
-export default function appHandler() {
-  const app = fastify({ logger: false });
+export default async function app(
+  instance: FastifyInstance,
+  opts: FastifyServerOptions,
+  // @ts-ignore
+  done
+) {
+  // const app = fastify({ logger: false });
   const msgsArr: Array<{ text: string }> = [];
 
   const schema: any = createSchema({
@@ -121,7 +131,7 @@ export default function appHandler() {
 
   console.log("hello world!");
 
-  app.route({
+  instance.route({
     url: "/graphql",
     method: ["GET", "POST", "OPTIONS", "PUT", "DELETE"],
     handler: async (req, res) => {
@@ -143,9 +153,10 @@ export default function appHandler() {
     },
   });
 
-  app.post("/webhook", (req, res) => {
+  instance.post("/webhook", (req, res) => {
     console.log(req);
   });
 
-  app.listen({ port: 4000 });
+  done();
+  // app.listen({ port: 4000 });
 }
