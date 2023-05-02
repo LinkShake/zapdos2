@@ -2,7 +2,6 @@
 
 // Read the .env file.
 import * as dotenv from "dotenv";
-import cors from "@fastify/cors";
 dotenv.config();
 
 // Require the framework
@@ -24,7 +23,7 @@ app.register(import("../src/app"), {
 
 const handler = async (req: FastifyRequest, res: FastifyReply) => {
   await app.ready();
-  res.header("Access-Control-Allow-Origin", "http://localhost:3000");
+  res.header("Access-Control-Allow-Origin", "*");
   app.server.emit("request", req, res);
 };
 
