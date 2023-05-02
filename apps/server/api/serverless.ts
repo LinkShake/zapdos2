@@ -21,9 +21,10 @@ app.register(import("../src/app"), {
   prefix: "/",
 });
 
-const handler = async (req: FastifyRequest, res: FastifyReply) => {
+// @ts-ignore
+const handler = async (req, res) => {
   await app.ready();
-  res.header("Access-Control-Allow-Origin", "*");
+  res?.header("Access-Control-Allow-Origin", "*");
   app.server.emit("request", req, res);
 };
 
