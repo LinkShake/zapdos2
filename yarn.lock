@@ -553,12 +553,7 @@
     "@graphql-typed-document-node/core" "^3.1.1"
     "tslib" "^2.4.0"
 
-"@graphql-typed-document-node/core@^3.1.1":
-  "integrity" "sha512-9anpBMM9mEgZN4wr2v8wHJI2/u5TnnggewRN6OlvXTTnuVyoY19X6rOv9XTqKRw6dcGKwZsBi8n0kDE2I5i4VA=="
-  "resolved" "https://registry.npmjs.org/@graphql-typed-document-node/core/-/core-3.1.2.tgz"
-  "version" "3.1.2"
-
-"@graphql-typed-document-node/core@3.1.2":
+"@graphql-typed-document-node/core@^3.1.1", "@graphql-typed-document-node/core@3.1.2":
   "integrity" "sha512-9anpBMM9mEgZN4wr2v8wHJI2/u5TnnggewRN6OlvXTTnuVyoY19X6rOv9XTqKRw6dcGKwZsBi8n0kDE2I5i4VA=="
   "resolved" "https://registry.npmjs.org/@graphql-typed-document-node/core/-/core-3.1.2.tgz"
   "version" "3.1.2"
@@ -1788,6 +1783,11 @@
   dependencies:
     "no-case" "^3.0.4"
     "tslib" "^2.0.3"
+
+"dotenv@^16.0.3":
+  "integrity" "sha512-7GO6HghkA5fYG9TYnNxi14/7K9f5occMlp3zXAuSxn7CKCxt9xbNWG7yF8hTCSUchlfWSe3uLmlPfigevRItzQ=="
+  "resolved" "https://registry.npmjs.org/dotenv/-/dotenv-16.0.3.tgz"
+  "version" "16.0.3"
 
 "dset@^3.1.1":
   "integrity" "sha512-g/M9sqy3oHe477Ar4voQxWtaPIFw1jTdKZuomOjhCcBx9nHUNn0pu6NopuFFrTh/TRZIKEj+76vLWFu9BNKk+Q=="
@@ -4209,6 +4209,7 @@
   "resolved" "file:packages/ui"
   "version" "0.0.0"
   dependencies:
+    "@clerk/clerk-react" "^4.14.2"
     "@emotion/react" "^11.10.6"
     "@mantine/core" "^6.0.5"
     "@mantine/hooks" "^6.0.5"
