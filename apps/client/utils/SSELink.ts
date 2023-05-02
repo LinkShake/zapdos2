@@ -54,8 +54,15 @@ class SSELink extends ApolloLink {
 }
 
 const uri = "https://zapdos2-server-db1tojcgc-linkshake.vercel.app/graphql";
-const sseLink = new SSELink({ uri });
-const httpLink = new HttpLink({ uri });
+const sseLink = new SSELink({
+  uri,
+});
+const httpLink = new HttpLink({
+  uri,
+  fetchOptions: {
+    mode: "cors",
+  },
+});
 
 export const link = split(
   ({ query, operationName }) => {
