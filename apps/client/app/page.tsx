@@ -22,7 +22,7 @@ const client = new ApolloClient({
 
 const MSGS_SUBSCRIPTION = gql`
   subscription {
-    newMsg {
+    newMsg(id: "Nick") {
       text
     }
   }
@@ -52,16 +52,16 @@ function Home() {
   } = useQuery(
     gql`
       query msgs($id: String) {
-        msgs(id: $id) {
+        msgs(id: "Nick") {
           text
         }
       }
-    `,
-    {
-      variables: {
-        id: user?.id,
-      },
-    }
+    `
+    // {
+    //   variables: {
+    //     id: user?.id,
+    //   },
+    // }
   );
   const {
     data: users,
@@ -79,7 +79,7 @@ function Home() {
   `);
   const [sendMsg] = useMutation(gql`
     mutation sendMsg($text: String!) {
-      sendMsg(text: $text) {
+      sendMsg(text: $text, from: "Margot", to: "Nick") {
         text
       }
     }

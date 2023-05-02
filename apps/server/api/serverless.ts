@@ -2,24 +2,29 @@
 
 // Read the .env file.
 import * as dotenv from "dotenv";
+import cors from "@fastify/cors";
 dotenv.config();
 
 // Require the framework
-import Fastify from "fastify";
+import Fastify, { FastifyReply, FastifyRequest } from "fastify";
 
 // Instantiate Fastify with some config
 const app = Fastify({
   logger: true,
 });
 
+// app.register(cors, {
+//   origin: "http://localhost:3000",
+// });
+
 // Register your application as a normal plugin.
 app.register(import("../src/app"), {
   prefix: "/",
 });
 
-// @ts-ignore
-const handler = async (req, res) => {
+const handler = async (req: FastifyRequest, res: FastifyReply) => {
   await app.ready();
+  res.header("Access-Control-Allow-Origin", "http://localhost:3000");
   app.server.emit("request", req, res);
 };
 
