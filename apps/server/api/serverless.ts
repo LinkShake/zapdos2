@@ -24,7 +24,7 @@ app.register(import("../src/app"), {
 // @ts-ignore
 const handler = async (req, res) => {
   await app.ready();
-  res?.header("Access-Control-Allow-Origin", "*");
+  res?.setHeader("Access-Control-Allow-Origin", "*");
   app.server.emit("request", req, res);
 };
 
