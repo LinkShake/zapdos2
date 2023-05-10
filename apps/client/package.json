@@ -10,7 +10,7 @@
   },
   "dependencies": {
     "@apollo/client": "^3.7.11",
-    "@clerk/nextjs": "^4.14.0",
+    "@clerk/nextjs": "^4.16.4",
     "@emotion/react": "^11.10.6",
     "@mantine/core": "^6.0.5",
     "@mantine/hooks": "^6.0.5",

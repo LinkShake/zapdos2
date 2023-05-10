@@ -1,162 +1,397 @@
 import { createYoga, useExtendContext } from "graphql-yoga";
-import fastify, {
-  FastifyRequest,
-  FastifyReply,
-  FastifyInstance,
-  FastifyServerOptions,
-} from "fastify";
+import fastify, { FastifyRequest, FastifyReply } from "fastify";
 import { createSchema } from "graphql-yoga";
 import { GraphQLContext } from "./context";
 import { pubSub } from "./pubsub";
 import { prisma } from "../utils/prisma";
+import * as dotenv from "dotenv";
+import { clerkClient, clerkPlugin } from "@clerk/fastify";
+import { filterUserForClient } from "../helpers/filterUserForClient";
 
-export default async function app(
-  instance: FastifyInstance,
-  opts: FastifyServerOptions,
-  // @ts-ignore
-  done
-) {
-  // const app = fastify({ logger: false });
-  const msgsArr: Array<{ text: string }> = [];
+dotenv.config();
 
-  const schema: any = createSchema({
-    typeDefs: `
+const app = fastify({ logger: true });
+const msgsArr: Array<{ text: string }> = [];
+
+const addUserDataToChats = async (chatsArr: any[], id: string) => {
+  const chats: any[] = [...chatsArr];
+  const currUser = await clerkClient.users.getUser(id);
+  const userId = chats.map(({ user1, user2 }) => {
+    if (id !== user1) {
+      return user1;
+    }
+    return user2;
+  });
+
+  const users = (
+    await clerkClient.users.getUserList({
+      userId: userId,
+    })
+  ).map(filterUserForClient);
+
+  return chats.map((chat) => {
+    const chatUser = users.find(
+      (user) =>
+        (user.id === chat.user1 || user.id === chat.user2) && user.id !== id
+    );
+
+    console.log("chatUser: ", chatUser);
+
+    if (id === chat.user1) {
+      const u1 = {
+        id: currUser?.id,
+        username: currUser?.username,
+        image: currUser?.profileImageUrl,
+      };
+      const u2 = {
+        id: chatUser?.id,
+        username: chatUser?.username,
+        image: chatUser?.profileImageUrl,
+      };
+      console.log("u1: ", u1);
+      console.log("u2: ", u2);
+      return {
+        ...chat,
+        user1: {
+          id: currUser?.id,
+          username: currUser?.username,
+          image: currUser?.profileImageUrl,
+        },
+        user2: {
+          id: chatUser?.id,
+          username: chatUser?.username,
+          image: chatUser?.profileImageUrl,
+        },
+        notifications: Array.isArray(chat.notifications)
+          ? [...chat.notifications]
+          : [],
+      };
+    } else {
+      const u2 = {
+        id: currUser?.id,
+        username: currUser?.username,
+        image: currUser?.profileImageUrl,
+      };
+      const u1 = {
+        id: chatUser?.id,
+        username: chatUser?.username,
+        image: chatUser?.profileImageUrl,
+      };
+      console.log("u2: ", u2);
+      console.log("u1: ", u1);
+      return {
+        ...chat,
+        user2: {
+          id: currUser?.id,
+          username: currUser?.username,
+          image: currUser?.profileImageUrl,
+        },
+        user1: {
+          id: chatUser?.id,
+          username: chatUser?.username,
+          image: chatUser?.profileImageUrl,
+        },
+        notifications: Array.isArray(chat.notifications)
+          ? [...chat.notifications]
+          : [],
+      };
+    }
+  });
+};
+
+const schema: any = createSchema({
+  typeDefs: `
         type Query {
             hello: String,
-            msgs(id: String): [Message],
+            msgs: [Message],
+            chats(id: String!): [Chat],
             users: [User]
         }
 
         type Mutation {
-            sendMsg(text: String!, from: String!, to: String!): Message!
+            sendMsg(text: String!, from: String, to: String): Message!
+            deleteMsg(id: Int!): [Message]
+            updateMsg(id: Int!, text: String!): Message!
+            createChat(id: String!, id2: String!): Chat
             storeUser(id: String!, username: String!, image: String!): User!
         }
 
         type Subscription {
-            newMsg(id: String!): Message!
+            msgsSub: PubSubType!
+            newMsg: Message! 
+            deletedMsg: [Message]
+            updatedMsg: Message!
         }
 
         type Message {
+            id: Int!
             text: String!
         }
 
+        type PubSubType {
+            msg: Message
+            msgArr: [Message]
+            type: String!
+        }
+
         type User {
-            id: String!  
-            username: String!
+            id: String
+            username: String
             image: String
         }
+
+        type Notification {
+          id: String
+          counter: Int
+        }
+
+        type Id {
+          id: String!
+        }
+
+        union UserData = Id | User 
+
+        type Chat {
+          id: String!
+          user1: User
+          user2: User
+          messages: [Message]
+          notifications: Notification
+        }
     `,
-    resolvers: {
-      Query: {
-        hello: () => "hello from graphql-yoga",
-        msgs: (id: string) => {
-          // console.log(id);
-          return prisma.message.findMany();
-        },
-        users: () => prisma.user.findMany(),
+  resolvers: {
+    Query: {
+      hello: () => "hello from graphql-yoga",
+      msgs: () => {
+        return prisma.message.findMany();
       },
-      Subscription: {
-        newMsg: {
-          subscribe: (_, args: { id: string }, ctx: GraphQLContext) =>
-            ctx.pubSub.subscribe(`newMsg_${args.id}`),
-        },
-      },
-      Mutation: {
-        sendMsg: async (
-          _,
-          args: { text: string; from: string; to: string },
-          ctx: GraphQLContext
-        ) => {
-          await prisma.message.create({
-            data: {
-              text: args.text,
-            },
-          });
-          [args.from, args.to].forEach((id) => {
-            ctx.pubSub.publish(`newMsg_${id}`, {
-              newMsg: { text: args.text },
-            });
-          });
-          // ctx.pubSub.publish(`newMsg_${args.from}`, {
-          //   newMsg: { text: args.text },
-          // });
-          // ctx.pubSub.publish(`newMsg_${args.to}`, {
-          //   newMsg: { text: args.text },
-          // });
-          return { text: args.text };
-        },
-        storeUser: async (_, args, ctx: GraphQLContext) => {
-          const user = await prisma.user.findUnique({
-            where: {
-              id: args.id,
-            },
-          });
-          if (user) return user;
-          else {
-            const newUser = await prisma.user.create({
-              data: {
-                id: args.id,
-                username: args.username,
-                image: args?.image,
+      users: () => prisma.user.findMany(),
+      chats: async (_, { id }: { id: string }) => {
+        console.log(id);
+        const chats = await prisma.chat.findMany({
+          where: {
+            OR: [
+              {
+                user1: id,
               },
-            });
-            return newUser;
-          }
-        },
+              {
+                user2: id,
+              },
+            ],
+          },
+          include: {
+            messages: true,
+            notifications: true,
+          },
+        });
+
+        console.log(chats[0].notifications);
+
+        // const chatsWithUserData = chats.map(
+        //   async ({ user1, user2, id, messages, notifications }) => {
+        //     if (id !== user1) {
+        //       const userOne = await clerkClient.users.getUser({});
+
+        //       return {
+        //         id,
+        //         user1: userOne,
+        //         user2,
+        //         messages,
+        //         notifications,
+        //       };
+        //     } else {
+        //       const userTwo = await clerkClient.users.getUser(user2);
+
+        //       return {
+        //         id,
+        //         user1,
+        //         user2: userTwo,
+        //         messages,
+        //         notifications,
+        //       };
+        //     }
+        //   }
+        // );
+
+        const actualChats = await addUserDataToChats(chats, id);
+
+        console.log("actualsChats: ", actualChats);
+
+        return [...actualChats];
       },
     },
-  });
+    Subscription: {
+      msgsSub: {
+        subscribe: (_, __, ctx: GraphQLContext) =>
+          ctx.pubSub.subscribe("msgsSub"),
+      },
+      newMsg: {
+        subscribe: (_, __, ctx: GraphQLContext) =>
+          ctx.pubSub.subscribe("newMsg"),
+      },
+      deletedMsg: {
+        subscribe: (_, __, ctx: GraphQLContext) =>
+          ctx.pubSub.subscribe("deletedMsg"),
+      },
+      updatedMsg: {
+        subscribe: (_, __, ctx: GraphQLContext) =>
+          ctx.pubSub.subscribe("updatedMsg"),
+      },
+    },
+    Mutation: {
+      sendMsg: async (
+        _,
+        args: { text: string; from: string; to: string },
+        ctx: GraphQLContext
+      ) => {
+        const msg = await prisma.message.create({
+          data: {
+            text: args.text,
+          },
+        });
 
-  const yoga = createYoga<{
-    req: FastifyRequest;
-    res: FastifyReply;
-  }>({
-    schema,
-    graphiql: {
-      defaultQuery: `
+        // [args.from, args.to].forEach((id) => {
+        //   ctx.pubSub.publish(`newMsg_${id}`, {
+        //     newMsg: { text: args.text },
+        //   });
+        // });
+        // ctx.pubSub.publish(`newMsg_${args.from}`, {
+        //   newMsg: { text: args.text },
+        // });
+        // ctx.pubSub.publish(`newMsg_${args.to}`, {
+        //   newMsg: { text: args.text },
+        // });
+        ctx.pubSub.publish("msgsSub", {
+          msgsSub: {
+            msg,
+            type: "newMsg",
+          },
+        });
+        return { text: args.text };
+      },
+      deleteMsg: async (_, args: { id: number }, ctx: GraphQLContext) => {
+        await prisma.message.delete({
+          where: {
+            id: args.id,
+          },
+        });
+        const msgs = await prisma.message.findMany();
+        ctx.pubSub.publish("msgsSub", {
+          msgsSub: {
+            msgArr: [...msgs],
+            type: "deletedMsg",
+          },
+        });
+
+        return msgs;
+      },
+      updateMsg: async (
+        _,
+        args: { id: number; text: string },
+        ctx: GraphQLContext
+      ) => {
+        const updatedMsg = await prisma.message.update({
+          where: {
+            id: args.id,
+          },
+          data: {
+            text: args.text,
+          },
+        });
+        // const msg = await prisma.message.findUnique({ where: { id: args.id } });
+        ctx.pubSub.publish("msgsSub", {
+          msgsSub: {
+            msg: updatedMsg,
+            type: "updatedMsg",
+          },
+        });
+
+        return { text: updatedMsg?.text };
+      },
+      createChat: async (_, args: { id: string; id2: string }, __) => {
+        const newChat = await prisma.chat.create({
+          data: {
+            user1: args.id,
+            user2: args.id2,
+            // messages: [] as any,
+            // notifications: [] as any,
+          },
+        });
+
+        return newChat;
+      },
+      storeUser: async (_, args, ctx: GraphQLContext) => {
+        const user = await prisma.user.findUnique({
+          where: {
+            id: args.id,
+          },
+        });
+        if (user) return user;
+        else {
+          const newUser = await prisma.user.create({
+            data: {
+              id: args.id,
+              username: args.username,
+              image: args?.image,
+            },
+          });
+          return newUser;
+        }
+      },
+    },
+  },
+});
+
+const yoga = createYoga<{
+  req: FastifyRequest;
+  res: FastifyReply;
+}>({
+  schema,
+  graphiql: {
+    defaultQuery: `
       query {
         hello
       }
         `,
-    },
-    // eslint-disable-next-line react-hooks/rules-of-hooks
-    plugins: [useExtendContext(() => ({ pubSub }))],
-    // logging: {
-    //   debug: (...args) => args.forEach((arg) => app.log.debug(arg)),
-    //   info: (...args) => args.forEach((arg) => app.log.info(arg)),
-    //   warn: (...args) => args.forEach((arg) => app.log.warn(arg)),
-    //   error: (...args) => args.forEach((arg) => app.log.error(arg)),
-    // },
-  });
+  },
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  plugins: [useExtendContext(() => ({ pubSub }))],
+  logging: {
+    debug: (...args) => args.forEach((arg) => app.log.debug(arg)),
+    info: (...args) => args.forEach((arg) => app.log.info(arg)),
+    warn: (...args) => args.forEach((arg) => app.log.warn(arg)),
+    error: (...args) => args.forEach((arg) => app.log.error(arg)),
+  },
+});
 
-  console.log("hello world!");
+console.log("hello world!");
 
-  instance.route({
-    url: "/graphql",
-    method: ["GET", "POST", "OPTIONS", "PUT", "DELETE"],
-    handler: async (req, res) => {
-      // Second parameter adds Fastify's `req` and `reply` to the GraphQL Context
-      const response = await yoga.handleNodeRequest(req, {
-        req,
-        //@ts-ignore
-        res,
-      });
-      response.headers.forEach((value, key) => {
-        res.header(key, value);
-      });
+app.route({
+  url: "/graphql",
+  method: ["GET", "POST", "OPTIONS", "PUT", "DELETE"],
+  handler: async (req, res) => {
+    // Second parameter adds Fastify's `req` and `reply` to the GraphQL Context
+    const response = await yoga.handleNodeRequest(req, {
+      req,
+      //@ts-ignore
+      res,
+    });
+    response.headers.forEach((value, key) => {
+      res.header(key, value);
+    });
 
-      res.status(response.status);
+    res.status(response.status);
 
-      res.send(response.body);
+    res.send(response.body);
 
-      return res;
-    },
-  });
+    return res;
+  },
+});
 
-  instance.post("/webhook", (req, res) => {
-    console.log(req);
-  });
+app.post("/webhook", (req, res) => {
+  console.log(req.body);
+});
 
-  done();
-  // app.listen({ port: 4000 });
-}
+app.register(clerkPlugin);
+
+app.listen({ port: 4000 });

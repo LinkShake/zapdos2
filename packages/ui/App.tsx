@@ -1,6 +1,6 @@
 import "./styles.css";
 import Image from "next/image";
-import React, { Dispatch, SetStateAction, useEffect, useState } from "react";
+import React, { Dispatch, SetStateAction, useContext, useState } from "react";
 import {
   AppShell,
   Navbar,
@@ -15,6 +15,9 @@ import {
   Switch,
 } from "@mantine/core";
 import { IconMoonStars, IconSun } from "@tabler/icons-react";
+import { MsgMenu } from "./MsgMenu";
+import { SubscriptionContext } from "../../apps/client/context/SubscriptionContext";
+import { NewChatBtn } from "./NewChatBtn";
 
 type Users = {
   id: string;
@@ -24,10 +27,11 @@ type Users = {
 
 interface AppShellProps {
   setTheme: Dispatch<SetStateAction<string>>;
-  msgsArr: Array<{ text: string }>;
+  msgsArr: Array<{ text: string; id: number }>;
   sendMsg: ({ variables: { text } }: { variables: { text: string } }) => void;
   UserProfile: React.ReactNode;
   users: Users[];
+  deleteMsg: ({ variables: { id } }: { variables: { id: number } }) => void;
 }
 
 export const App: React.FC<AppShellProps> = ({
@@ -36,8 +40,10 @@ export const App: React.FC<AppShellProps> = ({
   sendMsg,
   UserProfile,
   users,
+  deleteMsg,
 }) => {
   const theme = useMantineTheme();
+  const subscriptionAction = useContext(SubscriptionContext);
   const arr = new Array(5).fill(0);
   const [chat, setChat] = useState<boolean>(false);
   const [opened, setOpened] = useState<boolean>(!chat);
@@ -81,6 +87,7 @@ export const App: React.FC<AppShellProps> = ({
               <h3>{username}</h3>
             </div>
           ))}
+          <NewChatBtn />
         </Navbar>
       }
       // aside={
@@ -161,14 +168,22 @@ export const App: React.FC<AppShellProps> = ({
       }
     >
       {/* <Text>Resize app to see responsive navbar in action</Text> */}
-      <ul>
-        {msgsArr?.map(({ text }, idx) => (
-          <Text key={idx}>{text}</Text>
+      <ul
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          width: "fit-content",
+          gap: "10px",
+        }}
+      >
+        {msgsArr?.map(({ text, id }) => (
+          <MsgMenu key={id} text={text} id={id} deleteMsg={deleteMsg} />
         ))}
       </ul>
       <form
         onSubmit={(e) => {
           e.preventDefault();
+          // subscriptionAction?.setState("newMsg");
           sendMsg({ variables: { text: inputField } });
           setInputField("");
         }}

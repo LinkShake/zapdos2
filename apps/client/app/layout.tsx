@@ -31,18 +31,7 @@ export default function RootLayout({
                 alignItems: "center",
               }}
             >
-              <SignIn
-                appearance={{
-                  elements: {
-                    card: {
-                      // width: window?.innerWidth <= 1000 ? "90vw" : "auto",
-                      // height: window?.innerWidth <= 1000 ? "70vh" : "auto",
-                      // width: "90vw",
-                      // height: "70vh",
-                    },
-                  },
-                }}
-              />
+              <SignIn />
             </div>
           </SignedOut>
         </body>

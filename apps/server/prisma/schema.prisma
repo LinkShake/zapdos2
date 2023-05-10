@@ -4,18 +4,34 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url = env("POSTGRES_PRISMA_URL") // uses connection pooling
-  directUrl = env("POSTGRES_URL_NON_POOLING") // uses a direct connection
-  shadowDatabaseUrl = env("POSTGRES_URL_NON_POOLING") // used for migrations
+  url = env("DATABASE_URL") 
 }
 
 model User {
   id    String  @id
   username String
-  image String
+  profileImageUrl String
+   
 }
 
 model Message {
   id    Int     @id @default(autoincrement())
   text  String
+  chat  Chat @relation(fields: [chatId], references: [id])
+  chatId  String  @default(cuid())
+}
+
+model Notification {
+  id  String  @id @default(cuid())
+  counter Int
+  chat Chat @relation(fields: [chatId], references: [id])
+  chatId String @default(cuid())
+}
+
+model Chat {
+  id String  @id @default(cuid())
+  user1 String
+  user2 String
+  messages Message[] 
+  notifications Notification[]
 }
