@@ -13,38 +13,61 @@ import {
   useMantineTheme,
   Group,
   Switch,
+  Avatar,
+  useMantineColorScheme,
 } from "@mantine/core";
 import { IconMoonStars, IconSun } from "@tabler/icons-react";
 import { MsgMenu } from "./MsgMenu";
 import { SubscriptionContext } from "../../apps/client/context/SubscriptionContext";
 import { NewChatBtn } from "./NewChatBtn";
+import { ChatAvatar } from "./ChatAvatar";
+import { Chat } from "./Chat";
 
-type Users = {
+interface User {
   id: string;
   username: string;
   image: string;
+}
+
+type Chats = {
+  id: string;
+  user1: User;
+  user2: User;
+  messages: Array<{ id: string; text: string }>;
+  notifications: {
+    id: string;
+    counter: number;
+  };
 };
 
 interface AppShellProps {
-  setTheme: Dispatch<SetStateAction<string>>;
-  msgsArr: Array<{ text: string; id: number }>;
-  sendMsg: ({ variables: { text } }: { variables: { text: string } }) => void;
+  currUser: string;
+  setTheme: Dispatch<SetStateAction<"dark" | "light">>;
+  themeState: "dark" | "light";
+  // msgsArr: Array<{ text: string; id: number; chatId: string }>;
+  sendMsg: ({
+    variables: { text, id },
+  }: {
+    variables: { text: string; id: string };
+  }) => void;
   UserProfile: React.ReactNode;
-  users: Users[];
+  chats: Chats[];
   deleteMsg: ({ variables: { id } }: { variables: { id: number } }) => void;
+  // chatId: string;
+  // setChatId: React.Dispatch<React.SetStateAction<string>>;
 }
 
 export const App: React.FC<AppShellProps> = ({
+  currUser,
   setTheme,
-  msgsArr,
+  themeState,
   sendMsg,
   UserProfile,
-  users,
+  chats,
   deleteMsg,
 }) => {
-  const theme = useMantineTheme();
-  const subscriptionAction = useContext(SubscriptionContext);
-  const arr = new Array(5).fill(0);
+  // const { colorScheme, toggleColorScheme } = useMantineColorScheme();
+  const [chatId, setChatId] = useState<string>("");
   const [chat, setChat] = useState<boolean>(false);
   const [opened, setOpened] = useState<boolean>(!chat);
   const [inputField, setInputField] = useState<string>("");
@@ -54,10 +77,7 @@ export const App: React.FC<AppShellProps> = ({
       className="app"
       styles={{
         main: {
-          background:
-            theme.colorScheme === "dark"
-              ? theme.colors.dark[8]
-              : theme.colors.gray[0],
+          background: themeState === "dark" ? "dark" : "gray",
         },
       }}
       navbarOffsetBreakpoint="sm"
@@ -67,26 +87,34 @@ export const App: React.FC<AppShellProps> = ({
           p="md"
           hiddenBreakpoint="sm"
           hidden={!opened}
+          // color={
+          //   themeState === "dark" ? theme.colors.gray[0] : theme.colors.dark[8]
+          // }
+          // style={{
+          //   backgroundColor:
+          //     themeState === "dark"
+          //       ? theme.colors.gray[0]
+          //       : theme.colors.dark[8],
+          // }}
           width={{ sm: 200, lg: 300 }}
         >
           {/* <Text>Application navbar</Text> */}
-          {users?.map(({ id, username, image }) => (
-            <div
-              key={id}
-              onClick={() => {
-                setChat(() => {
-                  setOpened(false);
-                  return true;
-                });
-              }}
-              style={{
-                border: "2px solid red",
-              }}
-            >
-              <Image src={image} alt="user_profile" width={40} height={40} />
-              <h3>{username}</h3>
-            </div>
-          ))}
+          {chats?.map((chatMetaData) => {
+            const chatUser =
+              currUser === chatMetaData.user1.id
+                ? chatMetaData.user2
+                : chatMetaData.user1;
+            return (
+              <ChatAvatar
+                key={chatMetaData.id}
+                chatUser={chatUser}
+                setChat={setChat}
+                setOpened={setOpened}
+                setChatId={setChatId}
+                {...chatMetaData}
+              />
+            );
+          })}
           <NewChatBtn />
         </Navbar>
       }
@@ -109,7 +137,7 @@ export const App: React.FC<AppShellProps> = ({
               display: "flex",
               alignItems: "center",
               height: "100%",
-              justifyContent: "space-around",
+              justifyContent: "flex-end",
               maxWidth: "100vw",
             }}
           >
@@ -118,7 +146,7 @@ export const App: React.FC<AppShellProps> = ({
                 opened={opened}
                 onClick={() => setOpened((o) => !o)}
                 size="sm"
-                color={theme.colors.gray[6]}
+                // color={theme.colors.gray[6]}
                 mr="xl"
               />
             </MediaQuery>
@@ -134,12 +162,12 @@ export const App: React.FC<AppShellProps> = ({
             >
               <Switch
                 size="md"
-                color={theme.colorScheme === "dark" ? "gray" : "dark"}
+                color={themeState === "dark" ? "gray" : "dark"}
                 onLabel={
                   <IconSun
                     size="1rem"
                     stroke={2.5}
-                    color={theme.colors.yellow[4]}
+                    // color={theme.colors.yellow[4]}
                     style={{
                       cursor: "pointer",
                     }}
@@ -150,7 +178,7 @@ export const App: React.FC<AppShellProps> = ({
                   <IconMoonStars
                     size="1rem"
                     stroke={2.5}
-                    color={theme.colors.blue[6]}
+                    // color={theme.colors.blue[6]}
                     style={{
                       cursor: "pointer",
                     }}
@@ -168,50 +196,20 @@ export const App: React.FC<AppShellProps> = ({
       }
     >
       {/* <Text>Resize app to see responsive navbar in action</Text> */}
-      <ul
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          width: "fit-content",
-          gap: "10px",
-        }}
-      >
-        {msgsArr?.map(({ text, id }) => (
-          <MsgMenu key={id} text={text} id={id} deleteMsg={deleteMsg} />
-        ))}
-      </ul>
-      <form
-        onSubmit={(e) => {
-          e.preventDefault();
-          // subscriptionAction?.setState("newMsg");
-          sendMsg({ variables: { text: inputField } });
-          setInputField("");
-        }}
-        style={{
-          position: "absolute",
-          bottom: 0,
-          width: "100%",
-          marginLeft: 0,
-          paddingLeft: 0,
-        }}
-      >
-        <input
-          type="text"
-          style={{
-            width: "85%",
-            marginLeft: 0,
-            paddingLeft: 0,
-          }}
-          placeholder="Type something..."
-          value={inputField}
-          onChange={(e) => {
-            const evt =
-              e.target as unknown as React.ChangeEvent<HTMLInputElement>;
-            // @ts-ignore
-            setInputField(evt?.value);
-          }}
+
+      {chatId && (
+        <Chat
+          id={chatId}
+          // msgsArr={msgsArr.length ? msgsArr : []}
+          // useQuery={useQuery}
+          // MSGS_QUERY={MSGS_QUERY}
+          // MSGS_SUBSCRIPTION={MSGS_SUBSCRIPTION}
+          sendMsg={sendMsg}
+          setInputField={setInputField}
+          inputField={inputField}
+          deleteMsg={deleteMsg}
         />
-      </form>
+      )}
     </AppShell>
   );
 };

@@ -103,21 +103,20 @@ const schema: any = createSchema({
   typeDefs: `
         type Query {
             hello: String,
-            msgs: [Message],
-            chats(id: String!): [Chat],
+            msgs(id: String): [Message],
+            chats(id: String): [Chat],
             users: [User]
         }
 
         type Mutation {
-            sendMsg(text: String!, from: String, to: String): Message!
+            sendMsg(text: String!, id: String): Message!
             deleteMsg(id: Int!): [Message]
             updateMsg(id: Int!, text: String!): Message!
             createChat(id: String!, id2: String!): Chat
-            storeUser(id: String!, username: String!, image: String!): User!
         }
 
         type Subscription {
-            msgsSub: PubSubType!
+            msgsSub(id: String): PubSubType!
             newMsg: Message! 
             deletedMsg: [Message]
             updatedMsg: Message!
@@ -162,8 +161,14 @@ const schema: any = createSchema({
   resolvers: {
     Query: {
       hello: () => "hello from graphql-yoga",
-      msgs: () => {
-        return prisma.message.findMany();
+      msgs: async (_, { id }) => {
+        const msgs = await prisma.message.findMany({
+          where: {
+            chatId: id,
+          },
+        });
+
+        return msgs;
       },
       users: () => prisma.user.findMany(),
       chats: async (_, { id }: { id: string }) => {
@@ -222,8 +227,8 @@ const schema: any = createSchema({
     },
     Subscription: {
       msgsSub: {
-        subscribe: (_, __, ctx: GraphQLContext) =>
-          ctx.pubSub.subscribe("msgsSub"),
+        subscribe: (_, { id }: { id: string }, ctx: GraphQLContext) =>
+          ctx.pubSub.subscribe(`msgsSub_${id}`),
       },
       newMsg: {
         subscribe: (_, __, ctx: GraphQLContext) =>
@@ -241,33 +246,90 @@ const schema: any = createSchema({
     Mutation: {
       sendMsg: async (
         _,
-        args: { text: string; from: string; to: string },
+        args: { id: string; text: string },
         ctx: GraphQLContext
       ) => {
-        const msg = await prisma.message.create({
-          data: {
-            text: args.text,
-          },
-        });
+        // const chat = await prisma.chat.findUnique({
+        //   where: {
+        //     id: args.id,
+        //   },
+        //   include: {
+        //     messages: true,
+        //   },
+        // });
 
-        // [args.from, args.to].forEach((id) => {
-        //   ctx.pubSub.publish(`newMsg_${id}`, {
-        //     newMsg: { text: args.text },
-        //   });
+        // await prisma.chat.update({
+        //   where: {
+        //     id: args.id,
+        //   },
+        //   data: {
+        //     // @ts-ignore
+        //     messages: [...chat?.messages, { text: args.text }],
+        //   },
         // });
-        // ctx.pubSub.publish(`newMsg_${args.from}`, {
-        //   newMsg: { text: args.text },
+
+        // const msgs = await prisma.chat.findUnique({
+        //   where: {
+        //     id: args.id,
+        //   },
+        //   include: {
+        //     messages: true,
+        //   },
         // });
-        // ctx.pubSub.publish(`newMsg_${args.to}`, {
-        //   newMsg: { text: args.text },
-        // });
-        ctx.pubSub.publish("msgsSub", {
-          msgsSub: {
-            msg,
-            type: "newMsg",
-          },
-        });
-        return { text: args.text };
+
+        // const msg = msgs?.messages[msgs.messages.length - 1];
+
+        // const msg = msgs?.messages[msgs.messages.length - 1];
+        try {
+          // await prisma.chat.update({
+          //   where: {
+          //     id: args.id,
+          //   },
+          //   data: {
+          //     messages: {
+          //       create: { text: args.text },
+          //     },
+          //   },
+          // });
+
+          const msg = await prisma.message.create({
+            data: {
+              chatId: args.id,
+              text: args.text,
+            },
+          });
+
+          // const msgArr = await prisma.message.findMany({
+          //   where: {
+          //     chatId: args.id,
+          //   },
+          // });
+
+          // const msg = msgArr[msgArr.length - 1];
+
+          // [args.from, args.to].forEach((id) => {
+          //   ctx.pubSub.publish(`newMsg_${id}`, {
+          //     newMsg: { text: args.text },
+          //   });
+          // });
+          // ctx.pubSub.publish(`newMsg_${args.from}`, {
+          //   newMsg: { text: args.text },
+          // });
+          // ctx.pubSub.publish(`newMsg_${args.to}`, {
+          //   newMsg: { text: args.text },
+          // });
+          ctx.pubSub.publish(`msgsSub_${args.id}`, {
+            msgsSub: {
+              msg,
+              type: "newMsg",
+            },
+          });
+          return { text: args.text };
+        } catch (err) {
+          // @ts-ignore
+          console.log("error: ", err.message);
+          return { text: "error" };
+        }
       },
       deleteMsg: async (_, args: { id: number }, ctx: GraphQLContext) => {
         await prisma.message.delete({
@@ -319,24 +381,6 @@ const schema: any = createSchema({
         });
 
         return newChat;
-      },
-      storeUser: async (_, args, ctx: GraphQLContext) => {
-        const user = await prisma.user.findUnique({
-          where: {
-            id: args.id,
-          },
-        });
-        if (user) return user;
-        else {
-          const newUser = await prisma.user.create({
-            data: {
-              id: args.id,
-              username: args.username,
-              image: args?.image,
-            },
-          });
-          return newUser;
-        }
       },
     },
   },

@@ -224,19 +224,6 @@
     "@babel/helper-validator-identifier" "^7.19.1"
     "to-fast-properties" "^2.0.0"
 
-"@clerk/backend@^0.17.2":
-  "integrity" "sha512-PO0z9zeirKQewlNNtLTKuClPmw73yed2QKBHXST6lPFDXr8UahsUj6EH+Z5f2+5xt/LpyKxiBrgzo0ZSaBICGQ=="
-  "resolved" "https://registry.npmjs.org/@clerk/backend/-/backend-0.17.2.tgz"
-  "version" "0.17.2"
-  dependencies:
-    "@clerk/types" "^3.35.3"
-    "@peculiar/webcrypto" "1.4.1"
-    "@types/node" "16.18.6"
-    "deepmerge" "4.2.2"
-    "node-fetch-native" "1.0.1"
-    "snakecase-keys" "5.4.4"
-    "tslib" "2.4.1"
-
 "@clerk/backend@^0.18.0":
   "integrity" "sha512-d3YoDBK56XLdoAkLq7wCyY9B3Qxd1DG0+snXTXE7qWQtG6AFJEQ7FKFRFEsNzMZaWRfiiE9jQ9GJMjWEVvLAUA=="
   "resolved" "https://registry.npmjs.org/@clerk/backend/-/backend-0.18.0.tgz"
@@ -250,23 +237,23 @@
     "snakecase-keys" "5.4.4"
     "tslib" "2.4.1"
 
-"@clerk/clerk-react@^4.14.2", "@clerk/clerk-react@^4.15.3":
-  "integrity" "sha512-ZR7MyQyPHWBY0CpdWsvwY4FbtAxTWKjJXH9LFhOHhNc/R7YOv1nUWu1nWsxwBzNxt9Z6QSJRyXYwpSjoUHHJJw=="
-  "resolved" "https://registry.npmjs.org/@clerk/clerk-react/-/clerk-react-4.15.3.tgz"
-  "version" "4.15.3"
+"@clerk/clerk-react@^4.14.2", "@clerk/clerk-react@^4.15.4":
+  "integrity" "sha512-OSimB3ua3hJtlau3qUWIhIGIOoRZVEUMBuyVSkCkEEyjCGhHnSyO81Vcbv9slUtlP3DWlxeppMpdA62KZ6L1iA=="
+  "resolved" "https://registry.npmjs.org/@clerk/clerk-react/-/clerk-react-4.15.4.tgz"
+  "version" "4.15.4"
   dependencies:
-    "@clerk/shared" "^0.15.6"
-    "@clerk/types" "^3.35.3"
+    "@clerk/shared" "^0.15.7"
+    "@clerk/types" "^3.36.0"
     "swr" "1.3.0"
     "tslib" "2.4.1"
 
-"@clerk/clerk-sdk-node@^4.8.6":
-  "integrity" "sha512-bQBRYtxwFIQ2raSbPmPgC3MexgkzaKTBH6lsQw0IzJf2LRqHmgZpRO5/1dc7WMUrkTBJWxTtFbOQLmybgm2olw=="
-  "resolved" "https://registry.npmjs.org/@clerk/clerk-sdk-node/-/clerk-sdk-node-4.8.6.tgz"
-  "version" "4.8.6"
+"@clerk/clerk-sdk-node@^4.8.7":
+  "integrity" "sha512-fOlfPOL7XhBR9Jg9RnUnYqRB6yXlE+3/kVZ4RG0CcWNVLwLwGIgHz0C3+Sa3e3g+UAVpuvvnXq2/42rstm/ADA=="
+  "resolved" "https://registry.npmjs.org/@clerk/clerk-sdk-node/-/clerk-sdk-node-4.8.7.tgz"
+  "version" "4.8.7"
   dependencies:
-    "@clerk/backend" "^0.17.2"
-    "@clerk/types" "^3.35.3"
+    "@clerk/backend" "^0.18.0"
+    "@clerk/types" "^3.36.0"
     "@types/cookies" "0.7.7"
     "@types/express" "4.17.14"
     "@types/node-fetch" "2.6.2"
@@ -284,23 +271,24 @@
     "@clerk/types" "^3.36.0"
     "cookies" "0.8.0"
 
-"@clerk/nextjs@^4.14.0", "@clerk/nextjs@^4.16.4":
-  "integrity" "sha512-Fr6CKrMJQmBaYN55E7/dn8mmSIWaET8eLZvdmIqEEDrNheG0jtMsEd7SIvYONTupnZ+o1S2pcWyn6SZ/hcSnZQ=="
-  "resolved" "https://registry.npmjs.org/@clerk/nextjs/-/nextjs-4.16.4.tgz"
-  "version" "4.16.4"
+"@clerk/nextjs@^4.14.0", "@clerk/nextjs@^4.17.3":
+  "integrity" "sha512-H6Yi9GB9odTSw5KnZjO7mtLAjuaFuBN72kUDhnjTdIQWqHL0I1+Ut+jWAZTNf2w/ocRlpuw2BxNBlcAus5Bg+A=="
+  "resolved" "https://registry.npmjs.org/@clerk/nextjs/-/nextjs-4.17.3.tgz"
+  "version" "4.17.3"
   dependencies:
-    "@clerk/backend" "^0.17.2"
-    "@clerk/clerk-react" "^4.15.3"
-    "@clerk/clerk-sdk-node" "^4.8.6"
-    "@clerk/types" "^3.35.3"
+    "@clerk/backend" "^0.18.0"
+    "@clerk/clerk-react" "^4.15.4"
+    "@clerk/clerk-sdk-node" "^4.8.7"
+    "@clerk/types" "^3.36.0"
+    "path-to-regexp" "6.2.1"
     "tslib" "2.4.1"
 
-"@clerk/shared@^0.15.6":
-  "integrity" "sha512-fhV/o2b1QZ3LokIwE3fth7DZ6tx2kqp2Ke+2skW7FNj208tedL9aEMVdeJ37Pqasw1lfv67MjJ/2gecBSFd/5Q=="
-  "resolved" "https://registry.npmjs.org/@clerk/shared/-/shared-0.15.6.tgz"
-  "version" "0.15.6"
+"@clerk/shared@^0.15.7":
+  "integrity" "sha512-8kinCWFF28K8N/OCqfZYIEzxpyH8+HFZ1BmfloQLDSsiy8kpUljk3qbKkBRoHAxJKohSjZL6ax+IpBzt2FmkZw=="
+  "resolved" "https://registry.npmjs.org/@clerk/shared/-/shared-0.15.7.tgz"
+  "version" "0.15.7"
 
-"@clerk/types@^3.35.3", "@clerk/types@^3.36.0":
+"@clerk/types@^3.36.0":
   "integrity" "sha512-bsOIud1h3Tkvd9F0CGTqqD7NicvAF3O0hFQ2lGjuETFrNqV8houorrGM9d0ZMU72vsyzwTQ/Jw8vB4mIHIXHMQ=="
   "resolved" "https://registry.npmjs.org/@clerk/types/-/types-3.36.0.tgz"
   "version" "3.36.0"
@@ -679,6 +667,18 @@
     "@jridgewell/resolve-uri" "^3.0.3"
     "@jridgewell/sourcemap-codec" "^1.4.10"
 
+"@mantine/core@^6.0.10":
+  "integrity" "sha512-Q8HdRTBkQDs6LEtklpYm6efz2WaV6T5rvgjUOfXq0z44G/XYM+P1B1BSFnHvUDkeWYLcGkK6aPI5Uxc0GEN04w=="
+  "resolved" "https://registry.npmjs.org/@mantine/core/-/core-6.0.10.tgz"
+  "version" "6.0.10"
+  dependencies:
+    "@floating-ui/react" "^0.19.1"
+    "@mantine/styles" "6.0.10"
+    "@mantine/utils" "6.0.10"
+    "@radix-ui/react-scroll-area" "1.0.2"
+    "react-remove-scroll" "^2.5.5"
+    "react-textarea-autosize" "8.3.4"
+
 "@mantine/core@^6.0.5":
   "integrity" "sha512-jmP47Fcdw+UvcX1gDG5dNEhdF0QPeMnFZkB6JNAzaIuXKk8AVDh0rXXki0kWHx88gh/f5bGvOoRnKUb6v7UtDQ=="
   "resolved" "https://registry.npmjs.org/@mantine/core/-/core-6.0.5.tgz"
@@ -696,6 +696,19 @@
   "resolved" "https://registry.npmjs.org/@mantine/hooks/-/hooks-6.0.5.tgz"
   "version" "6.0.5"
 
+"@mantine/hooks@6.0.10":
+  "integrity" "sha512-rxH5/CxmUs1mUZAj27Fza4SH07HV1XyrL7L9wwhZdMLg+oDEaAs8BMz8lsOIHOCro9ZDh+Mm7QAbEW8HcvmYJg=="
+  "resolved" "https://registry.npmjs.org/@mantine/hooks/-/hooks-6.0.10.tgz"
+  "version" "6.0.10"
+
+"@mantine/styles@6.0.10":
+  "integrity" "sha512-TVyo4xNBO7PhP2jubu2OI1YK2DEULrVgdsP0+1wfwj/bhSTnTLYmh2aOb1FyTiFvFn1dfq4If428z/ZuGiLtdQ=="
+  "resolved" "https://registry.npmjs.org/@mantine/styles/-/styles-6.0.10.tgz"
+  "version" "6.0.10"
+  dependencies:
+    "clsx" "1.1.1"
+    "csstype" "3.0.9"
+
 "@mantine/styles@6.0.5":
   "integrity" "sha512-z4G+xlf4fMFNDx0tSLXQYboyPrkv0s0oK1LFmh/cd3yoZWO9D1BF+p1eylAYAPjGdyzSg60daalWaoWR82oEiQ=="
   "resolved" "https://registry.npmjs.org/@mantine/styles/-/styles-6.0.5.tgz"
@@ -703,6 +716,11 @@
   dependencies:
     "clsx" "1.1.1"
     "csstype" "3.0.9"
+
+"@mantine/utils@6.0.10":
+  "integrity" "sha512-Lo4VUn3+/kqhdjSoPzUFbxXEjMxj5vS4pqRjKRGtJsTwHiMFNcm8u4cIESzMBAEsoaBrI1dGE4WttwOJhjUaSw=="
+  "resolved" "https://registry.npmjs.org/@mantine/utils/-/utils-6.0.10.tgz"
+  "version" "6.0.10"
 
 "@mantine/utils@6.0.5":
   "integrity" "sha512-P2FVcBd2oZ9ANOsZUtTwJ4+FV6NgCRE5B7trsT8gEFUbMeQLietcsZEgAe5xhzEu9Afp5V8X8a+E9yx1blMpNg=="
@@ -1579,7 +1597,6 @@
   "version" "0.1.0"
   dependencies:
     "@apollo/client" "^3.7.11"
-    "@clerk/nextjs" "^4.16.4"
     "@emotion/react" "^11.10.6"
     "@mantine/core" "^6.0.5"
     "@mantine/hooks" "^6.0.5"
@@ -3445,6 +3462,11 @@
   "resolved" "https://registry.npmjs.org/path-parse/-/path-parse-1.0.7.tgz"
   "version" "1.0.7"
 
+"path-to-regexp@6.2.1":
+  "integrity" "sha512-JLyh7xT1kizaEvcaXOQwOc2/Yhw6KZOvPf1S8401UyLk86CU79LN3vl7ztXGm/pZ+YjoyAJ4rxmHwbkBXJX+yw=="
+  "resolved" "https://registry.npmjs.org/path-to-regexp/-/path-to-regexp-6.2.1.tgz"
+  "version" "6.2.1"
+
 "path-type@^4.0.0":
   "integrity" "sha512-gDKb8aZMDeD/tZWs9P6+q0J9Mwkdl6xMV8TjnGP3qJVJ06bdMgkbBlLU8IdfOsIsFz2BW1rNVT3XuNEl8zPAvw=="
   "resolved" "https://registry.npmjs.org/path-type/-/path-type-4.0.0.tgz"
@@ -4272,7 +4294,7 @@
   dependencies:
     "@clerk/clerk-react" "^4.14.2"
     "@emotion/react" "^11.10.6"
-    "@mantine/core" "^6.0.5"
+    "@mantine/core" "^6.0.10"
     "@mantine/hooks" "^6.0.5"
     "@tabler/icons-react" "^2.13.2"
 

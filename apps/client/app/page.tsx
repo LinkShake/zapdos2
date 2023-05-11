@@ -1,6 +1,10 @@
 "use client";
 import { App, NewChatModal } from "ui";
-import { ColorScheme, MantineProvider } from "@mantine/core";
+import {
+  ColorScheme,
+  ColorSchemeProvider,
+  MantineProvider,
+} from "@mantine/core";
 import { useEffect, useState } from "react";
 import {
   useQuery,
@@ -16,6 +20,7 @@ import { Loading } from "ui";
 import { UserButton, useUser } from "@clerk/nextjs/app-beta/client";
 import { SubscriptionContext } from "@/context/SubscriptionContext";
 import { NewChatModalContext } from "@/context/NewChatModalContext";
+import { Subscriptions } from "@/context/components/Subscriptions";
 
 const client = new ApolloClient({
   link,
@@ -23,17 +28,43 @@ const client = new ApolloClient({
 });
 
 const MSGS_QUERY = gql`
-  query msgs {
-    msgs {
+  query Msgs($id: String) {
+    msgs(id: $id) {
       id
       text
     }
   }
 `;
 
+const CHATS_QUERY = gql`
+  query Chats($id: String) {
+    chats(id: $id) {
+      id
+      user1 {
+        id
+        image
+        username
+      }
+      user2 {
+        id
+        image
+        username
+      }
+      messages {
+        id
+        text
+      }
+      notifications {
+        id
+        counter
+      }
+    }
+  }
+`;
+
 const SEND_MSG_MUTATION = gql`
-  mutation sendMsg($text: String!) {
-    sendMsg(text: $text) {
+  mutation sendMsg($text: String!, $id: String!) {
+    sendMsg(text: $text, id: $id) {
       text
     }
   }
@@ -57,8 +88,8 @@ const UPDATE_MSG_MUTATION = gql`
 `;
 
 const MSGS_SUBSCRIPTION = gql`
-  subscription {
-    msgsSub {
+  subscription msgsSub($id: String) {
+    msgsSub(id: $id) {
       msg {
         id
         text
@@ -83,102 +114,101 @@ const MSGS_SUBSCRIPTION = gql`
 // `;
 
 function Home() {
-  const [theme, setTheme] = useState<string>("dark");
+  const [colorScheme, setColorScheme] = useState<"dark" | "light">("dark");
+  const [chatId, setChatId] = useState<string>("");
+  const changeColorScheme = (value?: ColorScheme) =>
+    setColorScheme(value || (colorScheme === "dark" ? "light" : "dark"));
   const [newChatModalState, setNewChatModalState] = useState<
     "opened" | "closed"
   >("closed");
-  const { data: msgs, loading, error, subscribeToMore } = useQuery(MSGS_QUERY);
+  // const {
+  //   data: msgs,
+  //   loading,
+  //   error,
+  //   subscribeToMore,
+  // } = useQuery(MSGS_QUERY, { variables: { id: chatId } });
   const { user: userData } = useUser();
   console.log("userId: ", userData?.id);
   const {
-    data: users,
-    loading: usersLoading,
-    error: err,
-    subscribeToMore: moreUsers,
-  } = useQuery(gql`
-    query {
-      users {
-        id
-        username
-        image
-      }
-    }
-  `);
-  const [sendMsg] = useMutation(SEND_MSG_MUTATION);
+    data: chats,
+    error: chatsErr,
+    loading: chatsLoading,
+  } = useQuery(CHATS_QUERY, { variables: { id: userData?.id } });
+  const [sendMsg, { error }] = useMutation(SEND_MSG_MUTATION);
   const [deleteMsg] = useMutation(DELETE_MSG_MUTATION);
 
-  useEffect(() => {
-    subscribeToMore({
-      document: gql`
-        subscription {
-          msgsSub {
-            msg {
-              id
-              text
-            }
-            type
-            msgArr {
-              id
-              text
-            }
-          }
-        }
-      `,
-      updateQuery: (prev, { subscriptionData }) => {
-        console.log(subscriptionData.data);
-        if (!subscriptionData.data) return prev;
+  // if (error) {
+  //   return (
+  //     <>
+  //       <div>{error.message}</div>;<div>{error?.cause}</div>
+  //     </>
+  //   );
+  // }
 
-        if (subscriptionData.data.msgsSub.type === "newMsg") {
-          return Object.assign({}, prev, {
-            msgs: [...prev.msgs, subscriptionData.data.msgsSub.msg],
-          });
-        } else if (subscriptionData.data.msgsSub.type === "deletedMsg") {
-          return Object.assign({}, prev, {
-            msgs: [...subscriptionData.data.msgsSub.msgArr],
-          });
-        }
-      },
-    });
+  // useEffect(() => {
+  //   console.log("hi");
+  //   subscribeToMore({
+  //     document: MSGS_SUBSCRIPTION,
+  //     variables: { id: chatId },
+  //     updateQuery: (prev, { subscriptionData }) => {
+  //       console.log("we are sub");
+  //       console.log(subscriptionData.data);
+  //       if (!subscriptionData.data) return prev;
 
-    // if (user?.id && user?.username && user?.profileImageUrl) {
-    //   storeUser({
-    //     variables: {
-    //       id: user?.id,
-    //       username: user?.username,
-    //       image: user?.profileImageUrl,
-    //     },
-    //   });
-    // }
-  }, [subscribeToMore]);
+  //       if (subscriptionData.data.msgsSub.type === "newMsg") {
+  //         return Object.assign({}, prev, {
+  //           msgs: [...prev.msgs, subscriptionData.data.msgsSub.msg],
+  //         });
+  //       } else if (subscriptionData.data.msgsSub.type === "deletedMsg") {
+  //         return Object.assign({}, prev, {
+  //           msgs: [...subscriptionData.data.msgsSub.msgArr],
+  //         });
+  //       }
+  //     },
+  //   });
+  // }, [subscribeToMore, userData?.id, chatId]);
 
-  if (loading) {
-    return <Loading />;
-  }
+  // if (error) {
+  //   return <div>{error.message}</div>;
+  // }
 
   return (
     <main>
-      <MantineProvider
-        theme={{ colorScheme: theme as ColorScheme | undefined }}
-        withGlobalStyles
-        withNormalizeCSS
+      <ColorSchemeProvider
+        colorScheme={colorScheme}
+        toggleColorScheme={changeColorScheme}
       >
-        <NewChatModalContext.Provider
-          value={{
-            state: newChatModalState,
-            setState: setNewChatModalState,
-          }}
+        <MantineProvider
+          theme={{ colorScheme }}
+          withGlobalStyles
+          withNormalizeCSS
         >
-          <App
-            setTheme={setTheme}
-            msgsArr={msgs?.msgs}
-            sendMsg={sendMsg}
-            UserProfile={<UserButton />}
-            users={users?.users}
-            deleteMsg={deleteMsg}
-          />
-          {newChatModalState === "opened" && <NewChatModal />}
-        </NewChatModalContext.Provider>
-      </MantineProvider>
+          <Subscriptions>
+            <NewChatModalContext.Provider
+              value={{
+                state: newChatModalState,
+                setState: setNewChatModalState,
+              }}
+            >
+              <App
+                // useQuery={useQuery}
+                // MSGS_QUERY={MSGS_QUERY}
+                // MSGS_SUBSCRIPTION={MSGS_SUBSCRIPTION}
+                currUser={userData?.id || ""}
+                setTheme={setColorScheme}
+                themeState={colorScheme}
+                // chatId={chatId}
+                // setChatId={setChatId}
+                sendMsg={sendMsg}
+                UserProfile={<UserButton />}
+                chats={chats?.chats}
+                deleteMsg={deleteMsg}
+              />
+              {newChatModalState === "opened" && <NewChatModal />}
+            </NewChatModalContext.Provider>
+          </Subscriptions>
+        </MantineProvider>
+      </ColorSchemeProvider>
     </main>
   );
 }

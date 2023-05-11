@@ -18,7 +18,7 @@ model Message {
   id    Int     @id @default(autoincrement())
   text  String
   chat  Chat @relation(fields: [chatId], references: [id])
-  chatId  String  @default(cuid())
+  chatId  String  
 }
 
 model Notification {
