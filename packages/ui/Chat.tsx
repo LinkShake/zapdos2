@@ -1,5 +1,5 @@
 "use client";
-import { useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 import { MsgMenu } from "./MsgMenu";
 import { useMessagesContext } from "../../apps/client/hooks/useMessagesContext";
 
@@ -20,7 +20,16 @@ interface ChatProps {
   }) => void;
   setInputField: React.Dispatch<React.SetStateAction<string>>;
   inputField: string;
-  deleteMsg: ({ variables: { id } }: { variables: { id: number } }) => void;
+  deleteMsg: ({
+    variables: { id, chatId },
+  }: {
+    variables: { id: number; chatId: string };
+  }) => void;
+  updateMsg: ({
+    variables: { id, chatId, text },
+  }: {
+    variables: { id: number; chatId: string; text: string };
+  }) => void;
   // msgsArr: Array<{ text: string; id: number; chatId: string }>;
 }
 
@@ -35,15 +44,32 @@ export const Chat: React.FC<ChatProps> = ({
   setInputField,
   inputField,
   deleteMsg,
+  updateMsg,
 }) => {
   // const [{ data, error, loading, subscribeToMore }, subscription] =
   //   useMessagesContext({ id });
   // console.log(data);
 
+  const [userMsgAction, setUserMsgAction] = useState<"sendMsg" | "updateMsg">(
+    "sendMsg"
+  );
+  const inputRef: any = useRef(null);
+  const [currMsgId, setCurrMsgId] = useState<number>(0);
+
   // @ts-expect-error
   const [{ data, loading, error, subscribeToMore }, subscription] =
     useMessagesContext({ id });
-  console.log("id", id);
+
+  const onTryUpdatingMsg = (
+    actionType: "sendMsg" | "updateMsg",
+    msgBody: string,
+    msgId: number
+  ) => {
+    setUserMsgAction(actionType);
+    setInputField(msgBody);
+    setCurrMsgId(msgId);
+    inputRef?.current?.focus();
+  };
 
   useEffect(() => {
     subscribeToMore({
@@ -51,8 +77,8 @@ export const Chat: React.FC<ChatProps> = ({
       variables: { id },
       // @ts-ignore
       updateQuery: (prev, { subscriptionData }) => {
-        console.log("we are sub");
-        console.log(subscriptionData.data);
+        // console.log("we are sub");
+        // console.log(subscriptionData.data);
         if (!subscriptionData.data) return prev;
 
         if (subscriptionData.data.msgsSub.type === "newMsg") {
@@ -62,6 +88,22 @@ export const Chat: React.FC<ChatProps> = ({
         } else if (subscriptionData.data.msgsSub.type === "deletedMsg") {
           return Object.assign({}, prev, {
             msgs: [...subscriptionData.data.msgsSub.msgArr],
+          });
+        } else if (subscriptionData.data.msgsSub.type === "updatedMsg") {
+          const updatedMsgsQueue = prev.msgs.map(
+            (data: { id: number; text: string }) => {
+              if (data.id === subscriptionData.data.msgsSub.msg.id) {
+                return {
+                  id: data.id,
+                  text: subscriptionData.data.msgsSub.msg.text,
+                };
+              }
+              return data;
+            }
+          );
+
+          return Object.assign({}, prev, {
+            msgs: [...updatedMsgsQueue],
           });
         }
       },
@@ -77,17 +119,30 @@ export const Chat: React.FC<ChatProps> = ({
         gap: "10px",
       }}
     >
-      {data?.msgs?.map(({ text, id }: { text: string; id: number }) => (
-        <MsgMenu key={id} text={text} id={id} deleteMsg={deleteMsg} />
+      {data?.msgs?.map(({ text, id: msgId }: { text: string; id: number }) => (
+        <MsgMenu
+          key={msgId}
+          text={text}
+          id={msgId}
+          deleteMsg={deleteMsg}
+          updateMsg={updateMsg}
+          onTryUpdatingMsg={onTryUpdatingMsg}
+          chatId={id}
+        />
       ))}
       <form
         onSubmit={(e) => {
           e.preventDefault();
-          console.log(inputField);
+          // console.log(inputField);
           // subscriptionAction?.setState("newMsg");
-          sendMsg({ variables: { text: inputField, id: id } });
-          console.log("message sent");
+          userMsgAction === "sendMsg"
+            ? sendMsg({ variables: { text: inputField, id: id } })
+            : updateMsg({
+                variables: { id: currMsgId, chatId: id, text: inputField },
+              });
+          // console.log("message sent");
           setInputField("");
+          setUserMsgAction("sendMsg");
         }}
         style={{
           position: "absolute",
@@ -98,6 +153,7 @@ export const Chat: React.FC<ChatProps> = ({
         }}
       >
         <input
+          ref={inputRef}
           type="text"
           style={{
             width: "85%",

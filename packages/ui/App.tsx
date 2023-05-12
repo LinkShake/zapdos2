@@ -52,7 +52,16 @@ interface AppShellProps {
   }) => void;
   UserProfile: React.ReactNode;
   chats: Chats[];
-  deleteMsg: ({ variables: { id } }: { variables: { id: number } }) => void;
+  deleteMsg: ({
+    variables: { id, chatId },
+  }: {
+    variables: { id: number; chatId: string };
+  }) => void;
+  updateMsg: ({
+    variables: { id, chatId, text },
+  }: {
+    variables: { id: number; chatId: string; text: string };
+  }) => void;
   // chatId: string;
   // setChatId: React.Dispatch<React.SetStateAction<string>>;
 }
@@ -65,6 +74,7 @@ export const App: React.FC<AppShellProps> = ({
   UserProfile,
   chats,
   deleteMsg,
+  updateMsg,
 }) => {
   // const { colorScheme, toggleColorScheme } = useMantineColorScheme();
   const [chatId, setChatId] = useState<string>("");
@@ -208,6 +218,7 @@ export const App: React.FC<AppShellProps> = ({
           setInputField={setInputField}
           inputField={inputField}
           deleteMsg={deleteMsg}
+          updateMsg={updateMsg}
         />
       )}
     </AppShell>

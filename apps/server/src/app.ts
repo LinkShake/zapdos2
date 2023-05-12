@@ -35,21 +35,11 @@ const addUserDataToChats = async (chatsArr: any[], id: string) => {
         (user.id === chat.user1 || user.id === chat.user2) && user.id !== id
     );
 
-    console.log("chatUser: ", chatUser);
+    // console.log("chatUser: ", chatUser);
 
     if (id === chat.user1) {
-      const u1 = {
-        id: currUser?.id,
-        username: currUser?.username,
-        image: currUser?.profileImageUrl,
-      };
-      const u2 = {
-        id: chatUser?.id,
-        username: chatUser?.username,
-        image: chatUser?.profileImageUrl,
-      };
-      console.log("u1: ", u1);
-      console.log("u2: ", u2);
+      // console.log("u1: ", u1);
+      // console.log("u2: ", u2);
       return {
         ...chat,
         user1: {
@@ -67,18 +57,6 @@ const addUserDataToChats = async (chatsArr: any[], id: string) => {
           : [],
       };
     } else {
-      const u2 = {
-        id: currUser?.id,
-        username: currUser?.username,
-        image: currUser?.profileImageUrl,
-      };
-      const u1 = {
-        id: chatUser?.id,
-        username: chatUser?.username,
-        image: chatUser?.profileImageUrl,
-      };
-      console.log("u2: ", u2);
-      console.log("u1: ", u1);
       return {
         ...chat,
         user2: {
@@ -110,8 +88,8 @@ const schema: any = createSchema({
 
         type Mutation {
             sendMsg(text: String!, id: String): Message!
-            deleteMsg(id: Int!): [Message]
-            updateMsg(id: Int!, text: String!): Message!
+            deleteMsg(id: Int!, chatId: String!): [Message]
+            updateMsg(id: Int!, text: String!, chatId: String!): Message!
             createChat(id: String!, id2: String!): Chat
         }
 
@@ -331,14 +309,31 @@ const schema: any = createSchema({
           return { text: "error" };
         }
       },
-      deleteMsg: async (_, args: { id: number }, ctx: GraphQLContext) => {
-        await prisma.message.delete({
+      deleteMsg: async (
+        _,
+        args: { id: number; chatId: string },
+        ctx: GraphQLContext
+      ) => {
+        await prisma.chat.update({
           where: {
-            id: args.id,
+            id: args.chatId,
+          },
+          data: {
+            messages: {
+              delete: {
+                id: args.id,
+              },
+            },
           },
         });
-        const msgs = await prisma.message.findMany();
-        ctx.pubSub.publish("msgsSub", {
+
+        const msgs = await prisma.message.findMany({
+          where: {
+            chatId: args.chatId,
+          },
+        });
+
+        ctx.pubSub.publish(`msgsSub_${args.chatId}`, {
           msgsSub: {
             msgArr: [...msgs],
             type: "deletedMsg",
@@ -349,21 +344,38 @@ const schema: any = createSchema({
       },
       updateMsg: async (
         _,
-        args: { id: number; text: string },
+        args: { id: number; text: string; chatId: string },
         ctx: GraphQLContext
       ) => {
-        const updatedMsg = await prisma.message.update({
+        await prisma.chat.update({
           where: {
-            id: args.id,
+            id: args.chatId,
           },
           data: {
-            text: args.text,
+            messages: {
+              update: {
+                where: { id: args.id },
+                data: {
+                  text: args.text,
+                },
+              },
+            },
+          },
+        });
+        const updatedMsg = await prisma.message.findFirst({
+          where: {
+            id: args.id,
+            chatId: args.chatId,
           },
         });
         // const msg = await prisma.message.findUnique({ where: { id: args.id } });
-        ctx.pubSub.publish("msgsSub", {
+        console.log(updatedMsg?.id);
+        ctx.pubSub.publish(`msgsSub_${args.chatId}`, {
           msgsSub: {
-            msg: updatedMsg,
+            msg: {
+              id: updatedMsg?.id,
+              text: updatedMsg?.text,
+            },
             type: "updatedMsg",
           },
         });

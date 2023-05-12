@@ -2,7 +2,7 @@ import { DocumentNode, QueryResult } from "@apollo/client";
 import { createContext } from "react";
 
 interface IMessageContext {
-  useMessage: (params: { id: string }) => (
+  useMessages: (params: { id: string }) => (
     | DocumentNode
     | QueryResult<
         any,

@@ -71,16 +71,16 @@ const SEND_MSG_MUTATION = gql`
 `;
 
 const DELETE_MSG_MUTATION = gql`
-  mutation deleteMsg($id: Int!) {
-    deleteMsg(id: $id) {
+  mutation deleteMsg($id: Int!, $chatId: String!) {
+    deleteMsg(id: $id, chatId: $chatId) {
       text
     }
   }
 `;
 
 const UPDATE_MSG_MUTATION = gql`
-  mutation updateMsg($id: Int!, $text: String!) {
-    deleteMsg(id: $id, text: $text) {
+  mutation updateMsg($id: Int!, $text: String!, $chatId: String!) {
+    updateMsg(id: $id, text: $text, chatId: $chatId) {
       id
       text
     }
@@ -134,8 +134,9 @@ function Home() {
     error: chatsErr,
     loading: chatsLoading,
   } = useQuery(CHATS_QUERY, { variables: { id: userData?.id } });
-  const [sendMsg, { error }] = useMutation(SEND_MSG_MUTATION);
+  const [sendMsg] = useMutation(SEND_MSG_MUTATION);
   const [deleteMsg] = useMutation(DELETE_MSG_MUTATION);
+  const [updateMsg] = useMutation(UPDATE_MSG_MUTATION);
 
   // if (error) {
   //   return (
@@ -203,6 +204,7 @@ function Home() {
                 UserProfile={<UserButton />}
                 chats={chats?.chats}
                 deleteMsg={deleteMsg}
+                updateMsg={updateMsg}
               />
               {newChatModalState === "opened" && <NewChatModal />}
             </NewChatModalContext.Provider>
