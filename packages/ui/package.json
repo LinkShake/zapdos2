@@ -9,9 +9,11 @@
   },
   "devDependencies": {
     "@types/react": "^18.0.22",
+    "@types/react-highlight-words": "^0.16.4",
     "eslint": "^7.32.0",
     "eslint-config-custom": "*",
     "react": "^18.2.0",
+    "react-highlight-words": "^0.20.0",
     "tsconfig": "*",
     "typescript": "^4.5.2"
   },
@@ -20,6 +22,8 @@
     "@emotion/react": "^11.10.6",
     "@mantine/core": "^6.0.10",
     "@mantine/hooks": "^6.0.5",
-    "@tabler/icons-react": "^2.13.2"
+    "@tabler/icons-react": "^2.13.2",
+    "linkify-react": "^4.1.1",
+    "linkifyjs": "^4.1.1"
   }
 }

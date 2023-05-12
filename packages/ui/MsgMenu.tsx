@@ -1,17 +1,58 @@
 "use client";
-import { Menu, Button, Text, NavLink } from "@mantine/core";
-import {
-  IconSettings,
-  IconSearch,
-  IconPhoto,
-  IconMessageCircle,
-  IconTrash,
-  IconArrowsLeftRight,
-  IconEdit,
-  IconCopy,
-} from "@tabler/icons-react";
-import { forwardRef, useContext } from "react";
-import { SubscriptionContext } from "../../apps/client/context/SubscriptionContext";
+import { Menu, Text } from "@mantine/core";
+import { IconTrash, IconEdit, IconCopy } from "@tabler/icons-react";
+import { forwardRef } from "react";
+import Linkify from "linkify-react";
+import Highlighter from "react-highlight-words";
+
+const findChunks = ({
+  // @ts-ignore
+  autoEscape,
+  // @ts-ignore
+  caseSensitive,
+  // @ts-ignore
+  sanitize,
+  // @ts-ignore
+  searchWords,
+  // @ts-ignore
+  textToHighlight,
+}) => {
+  // @ts-ignore
+  const chunks = [];
+  const textLow = textToHighlight.toLowerCase();
+  const sep = /[\s]+/;
+
+  const singleTextWords = textLow.split(sep);
+
+  let fromIndex = 0;
+  const singleTextWordsWithPos = singleTextWords.map((s) => {
+    const indexInWord = textLow.indexOf(s, fromIndex);
+    fromIndex = indexInWord;
+    return {
+      word: s,
+      index: indexInWord,
+    };
+  });
+
+  // @ts-ignore
+  searchWords.forEach((sw) => {
+    const swLow = sw.toLowerCase();
+    // @ts-ignore
+    singleTextWordsWithPos.forEach((s) => {
+      if (s.word.includes(swLow)) {
+        const start = s.index;
+        const end = s.index + s.word.length;
+        chunks.push({
+          start,
+          end,
+        });
+      }
+    });
+  });
+
+  // @ts-ignore
+  return chunks;
+};
 
 interface MsgMenuProps {
   text: string;
@@ -55,7 +96,20 @@ export const MsgMenu: React.FC<MsgMenuProps> = forwardRef(
               paddingLeft: "1rem",
             }}
           >
-            {text}
+            <Highlighter
+              highlightClassName="YourHighlightClass"
+              textToHighlight={text}
+              searchWords={["http"]}
+              autoEscape={true}
+              findChunks={findChunks}
+              highlightTag={({ children, highlightIndex }) => (
+                <Linkify>
+                  <span style={{ color: "#67e8f9" }}>{children}</span>
+                </Linkify>
+              )}
+            />
+
+            {/* {text} */}
           </Text>
         </Menu.Target>
 
