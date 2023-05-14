@@ -1,4 +1,4 @@
-import { Avatar } from "@mantine/core";
+import { Avatar, Navbar } from "@mantine/core";
 
 interface User {
   id: string;
@@ -27,7 +27,7 @@ export const ChatAvatar: React.FC<ChatAvatarProps> = ({
   setChatId,
 }) => {
   return (
-    <div
+    <Navbar.Section
       className="chat-avatar"
       onClick={() => {
         setChatId(chatId);
@@ -37,11 +37,14 @@ export const ChatAvatar: React.FC<ChatAvatarProps> = ({
         });
       }}
       style={{
-        border: "2px solid red",
+        width: "100%",
+        borderBottomStyle: "inset",
+        borderBottomColor: "gray",
+        borderWidth: "0.1rem",
       }}
     >
       <Avatar src={chatUser.image} alt="user_profile" radius={"xl"} />
       <h3>{chatUser.username}</h3>
-    </div>
+    </Navbar.Section>
   );
 };

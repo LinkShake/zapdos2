@@ -1,8 +1,10 @@
 import { useContext, useEffect } from "react";
 import { NewChatModalContext } from "../../apps/client/context/NewChatModalContext";
+import { Flex, Input, TextInput, useMantineTheme } from "@mantine/core";
 
 export const NewChatModal = () => {
   const ctx = useContext(NewChatModalContext);
+  const theme = useMantineTheme();
 
   useEffect(() => {
     const onEscapeKey = (e: React.KeyboardEvent<HTMLDivElement>) => {
@@ -40,11 +42,16 @@ export const NewChatModal = () => {
           position: "absolute",
           left: "30%",
           top: "15%",
-          backgroundColor: "red",
+          backgroundColor:
+            theme.colorScheme === "dark" ? theme.colors.dark[8] : "white",
+          borderRadius: ".75rem",
           zIndex: 100,
         }}
       >
-        <div className="new-chat-modal">this is a modal</div>
+        <Flex justify="center" align="center" direction="column" wrap="wrap">
+          <TextInput placeholder="Search for a user..." />
+          <div>Users</div>
+        </Flex>
       </div>
     </>
   );

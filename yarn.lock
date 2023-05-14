@@ -667,18 +667,6 @@
     "@jridgewell/resolve-uri" "^3.0.3"
     "@jridgewell/sourcemap-codec" "^1.4.10"
 
-"@mantine/core@^6.0.10":
-  "integrity" "sha512-Q8HdRTBkQDs6LEtklpYm6efz2WaV6T5rvgjUOfXq0z44G/XYM+P1B1BSFnHvUDkeWYLcGkK6aPI5Uxc0GEN04w=="
-  "resolved" "https://registry.npmjs.org/@mantine/core/-/core-6.0.10.tgz"
-  "version" "6.0.10"
-  dependencies:
-    "@floating-ui/react" "^0.19.1"
-    "@mantine/styles" "6.0.10"
-    "@mantine/utils" "6.0.10"
-    "@radix-ui/react-scroll-area" "1.0.2"
-    "react-remove-scroll" "^2.5.5"
-    "react-textarea-autosize" "8.3.4"
-
 "@mantine/core@^6.0.5":
   "integrity" "sha512-jmP47Fcdw+UvcX1gDG5dNEhdF0QPeMnFZkB6JNAzaIuXKk8AVDh0rXXki0kWHx88gh/f5bGvOoRnKUb6v7UtDQ=="
   "resolved" "https://registry.npmjs.org/@mantine/core/-/core-6.0.5.tgz"
@@ -696,19 +684,6 @@
   "resolved" "https://registry.npmjs.org/@mantine/hooks/-/hooks-6.0.5.tgz"
   "version" "6.0.5"
 
-"@mantine/hooks@6.0.10":
-  "integrity" "sha512-rxH5/CxmUs1mUZAj27Fza4SH07HV1XyrL7L9wwhZdMLg+oDEaAs8BMz8lsOIHOCro9ZDh+Mm7QAbEW8HcvmYJg=="
-  "resolved" "https://registry.npmjs.org/@mantine/hooks/-/hooks-6.0.10.tgz"
-  "version" "6.0.10"
-
-"@mantine/styles@6.0.10":
-  "integrity" "sha512-TVyo4xNBO7PhP2jubu2OI1YK2DEULrVgdsP0+1wfwj/bhSTnTLYmh2aOb1FyTiFvFn1dfq4If428z/ZuGiLtdQ=="
-  "resolved" "https://registry.npmjs.org/@mantine/styles/-/styles-6.0.10.tgz"
-  "version" "6.0.10"
-  dependencies:
-    "clsx" "1.1.1"
-    "csstype" "3.0.9"
-
 "@mantine/styles@6.0.5":
   "integrity" "sha512-z4G+xlf4fMFNDx0tSLXQYboyPrkv0s0oK1LFmh/cd3yoZWO9D1BF+p1eylAYAPjGdyzSg60daalWaoWR82oEiQ=="
   "resolved" "https://registry.npmjs.org/@mantine/styles/-/styles-6.0.5.tgz"
@@ -716,11 +691,6 @@
   dependencies:
     "clsx" "1.1.1"
     "csstype" "3.0.9"
-
-"@mantine/utils@6.0.10":
-  "integrity" "sha512-Lo4VUn3+/kqhdjSoPzUFbxXEjMxj5vS4pqRjKRGtJsTwHiMFNcm8u4cIESzMBAEsoaBrI1dGE4WttwOJhjUaSw=="
-  "resolved" "https://registry.npmjs.org/@mantine/utils/-/utils-6.0.10.tgz"
-  "version" "6.0.10"
 
 "@mantine/utils@6.0.5":
   "integrity" "sha512-P2FVcBd2oZ9ANOsZUtTwJ4+FV6NgCRE5B7trsT8gEFUbMeQLietcsZEgAe5xhzEu9Afp5V8X8a+E9yx1blMpNg=="
@@ -4331,8 +4301,6 @@
   dependencies:
     "@clerk/clerk-react" "^4.14.2"
     "@emotion/react" "^11.10.6"
-    "@mantine/core" "^6.0.10"
-    "@mantine/hooks" "^6.0.5"
     "@tabler/icons-react" "^2.13.2"
     "linkify-react" "^4.1.1"
     "linkifyjs" "^4.1.1"

@@ -4,6 +4,7 @@ import { IconTrash, IconEdit, IconCopy } from "@tabler/icons-react";
 import { forwardRef } from "react";
 import Linkify from "linkify-react";
 import Highlighter from "react-highlight-words";
+import { useMantineTheme } from "@mantine/core";
 
 const findChunks = ({
   // @ts-ignore
@@ -85,12 +86,14 @@ export const MsgMenu: React.FC<MsgMenuProps> = forwardRef(
     onTryUpdatingMsg,
     chatId,
   }) {
+    const theme = useMantineTheme();
     return (
       <Menu shadow="md" width={200}>
         <Menu.Target>
           <Text
             style={{
-              backgroundColor: "#1A1B1E",
+              backgroundColor:
+                theme.colorScheme === "dark" ? theme.colors.dark[7] : "white",
               padding: ".5rem",
               paddingRight: "1rem",
               paddingLeft: "1rem",

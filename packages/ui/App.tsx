@@ -1,24 +1,16 @@
 import "./styles.css";
-import Image from "next/image";
 import React, { Dispatch, SetStateAction, useContext, useState } from "react";
 import {
   AppShell,
   Navbar,
   Header,
-  Footer,
-  Aside,
-  Text,
   MediaQuery,
   Burger,
-  useMantineTheme,
-  Group,
-  Switch,
-  Avatar,
+  ActionIcon,
   useMantineColorScheme,
+  useMantineTheme,
 } from "@mantine/core";
 import { IconMoonStars, IconSun } from "@tabler/icons-react";
-import { MsgMenu } from "./MsgMenu";
-import { SubscriptionContext } from "../../apps/client/context/SubscriptionContext";
 import { NewChatBtn } from "./NewChatBtn";
 import { ChatAvatar } from "./ChatAvatar";
 import { Chat } from "./Chat";
@@ -76,7 +68,8 @@ export const App: React.FC<AppShellProps> = ({
   deleteMsg,
   updateMsg,
 }) => {
-  // const { colorScheme, toggleColorScheme } = useMantineColorScheme();
+  const theme = useMantineTheme();
+  const { colorScheme, toggleColorScheme } = useMantineColorScheme();
   const [chatId, setChatId] = useState<string>("");
   const [chat, setChat] = useState<boolean>(false);
   const [opened, setOpened] = useState<boolean>(!chat);
@@ -84,31 +77,31 @@ export const App: React.FC<AppShellProps> = ({
 
   return (
     <AppShell
-      className="app"
+      // className="app"
       styles={{
         main: {
-          background: themeState === "dark" ? "dark" : "gray",
+          backgroundColor:
+            colorScheme === "dark"
+              ? theme.colors.dark[6]
+              : theme.colors.gray[1],
+          margin: 0,
+          padding: "auto",
         },
       }}
-      navbarOffsetBreakpoint="sm"
-      asideOffsetBreakpoint="sm"
+      fixed
+      navbarOffsetBreakpoint="md"
+      asideOffsetBreakpoint="md"
       navbar={
         <Navbar
           p="md"
           hiddenBreakpoint="sm"
           hidden={!opened}
-          // color={
-          //   themeState === "dark" ? theme.colors.gray[0] : theme.colors.dark[8]
-          // }
-          // style={{
-          //   backgroundColor:
-          //     themeState === "dark"
-          //       ? theme.colors.gray[0]
-          //       : theme.colors.dark[8],
-          // }}
+          style={{
+            padding: 0,
+            margin: 0,
+          }}
           width={{ sm: 200, lg: 300 }}
         >
-          {/* <Text>Application navbar</Text> */}
           {chats?.map((chatMetaData) => {
             const chatUser =
               currUser === chatMetaData.user1.id
@@ -141,7 +134,17 @@ export const App: React.FC<AppShellProps> = ({
       //   </Footer>
       // }
       header={
-        <Header height={{ base: 50, md: 70 }} p="md">
+        <Header
+          height={{ base: 50, md: 70 }}
+          p="md"
+          style={
+            {
+              // backgroundColor: theme.colors.dark[7],
+              // borderColor: theme.colors.dark[8],
+              // border: "none",
+            }
+          }
+        >
           <div
             style={{
               display: "flex",
@@ -161,8 +164,6 @@ export const App: React.FC<AppShellProps> = ({
               />
             </MediaQuery>
 
-            {/* <Text>Application header</Text> */}
-            {/* <Group position="center"> */}
             <div
               style={{
                 display: "flex",
@@ -170,34 +171,28 @@ export const App: React.FC<AppShellProps> = ({
                 alignItems: "center",
               }}
             >
-              <Switch
-                size="md"
-                color={themeState === "dark" ? "gray" : "dark"}
-                onLabel={
+              <ActionIcon
+                variant="outline"
+                color={colorScheme === "dark" ? "yellow" : "blue"}
+                onClick={() => toggleColorScheme()}
+                title="Toggle color scheme"
+              >
+                {colorScheme === "dark" ? (
                   <IconSun
-                    size="1rem"
-                    stroke={2.5}
-                    // color={theme.colors.yellow[4]}
+                    size={20}
                     style={{
-                      cursor: "pointer",
+                      borderRadius: "50%",
                     }}
-                    className="theme-switch"
                   />
-                }
-                offLabel={
+                ) : (
                   <IconMoonStars
-                    size="1rem"
-                    stroke={2.5}
-                    // color={theme.colors.blue[6]}
+                    size={20}
                     style={{
-                      cursor: "pointer",
+                      borderRadius: "50%",
                     }}
-                    className="theme-switch"
                   />
-                }
-                //   @ts-ignore
-                onChange={(e) => setTheme(e.target?.checked ? "light" : "dark")}
-              />
+                )}
+              </ActionIcon>
               {/* </Group> */}
               {UserProfile}
             </div>
@@ -205,15 +200,9 @@ export const App: React.FC<AppShellProps> = ({
         </Header>
       }
     >
-      {/* <Text>Resize app to see responsive navbar in action</Text> */}
-
       {chatId && (
         <Chat
           id={chatId}
-          // msgsArr={msgsArr.length ? msgsArr : []}
-          // useQuery={useQuery}
-          // MSGS_QUERY={MSGS_QUERY}
-          // MSGS_SUBSCRIPTION={MSGS_SUBSCRIPTION}
           sendMsg={sendMsg}
           setInputField={setInputField}
           inputField={inputField}

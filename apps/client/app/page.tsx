@@ -16,11 +16,10 @@ import {
   DocumentNode,
 } from "@apollo/client";
 import { link } from "../utils/SSELink";
-import { Loading } from "ui";
 import { UserButton, useUser } from "@clerk/nextjs/app-beta/client";
-import { SubscriptionContext } from "@/context/SubscriptionContext";
 import { NewChatModalContext } from "@/context/NewChatModalContext";
 import { Subscriptions } from "@/context/components/Subscriptions";
+import { useHotkeys, useLocalStorage } from "@mantine/hooks";
 
 const client = new ApolloClient({
   link,
@@ -103,103 +102,75 @@ const MSGS_SUBSCRIPTION = gql`
   }
 `;
 
-// const USER_MUTATION = gql`
-//   mutation storeUser($id: String!, $username: String!, $image: String!) {
-//     storeUser(id: $id, username: $username, image: $image) {
-//       id
-//       username
-//       image
-//     }
-//   }
-// `;
-
 function Home() {
-  const [colorScheme, setColorScheme] = useState<"dark" | "light">("dark");
-  const [chatId, setChatId] = useState<string>("");
-  const changeColorScheme = (value?: ColorScheme) =>
+  const [colorScheme, setColorScheme] = useLocalStorage<ColorScheme>({
+    key: "mantine-color-scheme",
+    defaultValue: "dark",
+    getInitialValueInEffect: true,
+  });
+  const toggleColorScheme = (value?: ColorScheme) =>
     setColorScheme(value || (colorScheme === "dark" ? "light" : "dark"));
+  useHotkeys([["mod+J", () => toggleColorScheme()]]);
+  const [chatId, setChatId] = useState<string>("");
   const [newChatModalState, setNewChatModalState] = useState<
     "opened" | "closed"
   >("closed");
-  // const {
-  //   data: msgs,
-  //   loading,
-  //   error,
-  //   subscribeToMore,
-  // } = useQuery(MSGS_QUERY, { variables: { id: chatId } });
   const { user: userData } = useUser();
-  console.log("userId: ", userData?.id);
   const {
     data: chats,
-    error: chatsErr,
-    loading: chatsLoading,
+    error,
+    loading,
   } = useQuery(CHATS_QUERY, { variables: { id: userData?.id } });
   const [sendMsg] = useMutation(SEND_MSG_MUTATION);
   const [deleteMsg] = useMutation(DELETE_MSG_MUTATION);
   const [updateMsg] = useMutation(UPDATE_MSG_MUTATION);
 
-  // if (error) {
-  //   return (
-  //     <>
-  //       <div>{error.message}</div>;<div>{error?.cause}</div>
-  //     </>
-  //   );
-  // }
-
-  // useEffect(() => {
-  //   console.log("hi");
-  //   subscribeToMore({
-  //     document: MSGS_SUBSCRIPTION,
-  //     variables: { id: chatId },
-  //     updateQuery: (prev, { subscriptionData }) => {
-  //       console.log("we are sub");
-  //       console.log(subscriptionData.data);
-  //       if (!subscriptionData.data) return prev;
-
-  //       if (subscriptionData.data.msgsSub.type === "newMsg") {
-  //         return Object.assign({}, prev, {
-  //           msgs: [...prev.msgs, subscriptionData.data.msgsSub.msg],
-  //         });
-  //       } else if (subscriptionData.data.msgsSub.type === "deletedMsg") {
-  //         return Object.assign({}, prev, {
-  //           msgs: [...subscriptionData.data.msgsSub.msgArr],
-  //         });
-  //       }
-  //     },
-  //   });
-  // }, [subscribeToMore, userData?.id, chatId]);
-
-  // if (error) {
-  //   return <div>{error.message}</div>;
-  // }
-
   return (
     <main>
-      <ColorSchemeProvider
-        colorScheme={colorScheme}
-        toggleColorScheme={changeColorScheme}
-      >
-        <MantineProvider
-          theme={{ colorScheme }}
-          withGlobalStyles
-          withNormalizeCSS
+      <Subscriptions>
+        <NewChatModalContext.Provider
+          value={{
+            state: newChatModalState,
+            setState: setNewChatModalState,
+          }}
         >
-          <Subscriptions>
-            <NewChatModalContext.Provider
-              value={{
-                state: newChatModalState,
-                setState: setNewChatModalState,
+          <ColorSchemeProvider
+            colorScheme={colorScheme}
+            toggleColorScheme={toggleColorScheme}
+          >
+            <MantineProvider
+              theme={{
+                colorScheme,
+                components: {
+                  InputWrapper: {
+                    styles: (theme) => ({
+                      label: {
+                        backgroundColor:
+                          theme.colorScheme === "dark"
+                            ? theme.colors.dark[8]
+                            : "white",
+                      },
+                    }),
+                  },
+                  Input: {
+                    styles: (theme) => ({
+                      input: {
+                        backgroundColor:
+                          theme.colorScheme === "dark"
+                            ? theme.colors.dark[7]
+                            : "white",
+                      },
+                    }),
+                  },
+                },
               }}
+              withGlobalStyles
+              withNormalizeCSS
             >
               <App
-                // useQuery={useQuery}
-                // MSGS_QUERY={MSGS_QUERY}
-                // MSGS_SUBSCRIPTION={MSGS_SUBSCRIPTION}
                 currUser={userData?.id || ""}
                 setTheme={setColorScheme}
                 themeState={colorScheme}
-                // chatId={chatId}
-                // setChatId={setChatId}
                 sendMsg={sendMsg}
                 UserProfile={<UserButton />}
                 chats={chats?.chats}
@@ -207,10 +178,10 @@ function Home() {
                 updateMsg={updateMsg}
               />
               {newChatModalState === "opened" && <NewChatModal />}
-            </NewChatModalContext.Provider>
-          </Subscriptions>
-        </MantineProvider>
-      </ColorSchemeProvider>
+            </MantineProvider>
+          </ColorSchemeProvider>
+        </NewChatModalContext.Provider>
+      </Subscriptions>
     </main>
   );
 }

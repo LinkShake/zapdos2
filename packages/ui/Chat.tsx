@@ -2,17 +2,10 @@
 import { useEffect, useRef, useState } from "react";
 import { MsgMenu } from "./MsgMenu";
 import { useMessagesContext } from "../../apps/client/hooks/useMessagesContext";
+import { TextInput, Grid, MediaQuery } from "@mantine/core";
 
 interface ChatProps {
   id: string;
-  // useQuery: (
-  //   props: any,
-  //   {
-  //     variables: { id },
-  //   }: { variables: { id: string } }
-  // ) => any;
-  // MSGS_QUERY: any;
-  // MSGS_SUBSCRIPTION: any;
   sendMsg: ({
     variables: { text, id },
   }: {
@@ -30,7 +23,6 @@ interface ChatProps {
   }: {
     variables: { id: number; chatId: string; text: string };
   }) => void;
-  // msgsArr: Array<{ text: string; id: number; chatId: string }>;
 }
 
 interface Message {
@@ -46,10 +38,6 @@ export const Chat: React.FC<ChatProps> = ({
   deleteMsg,
   updateMsg,
 }) => {
-  // const [{ data, error, loading, subscribeToMore }, subscription] =
-  //   useMessagesContext({ id });
-  // console.log(data);
-
   const [userMsgAction, setUserMsgAction] = useState<"sendMsg" | "updateMsg">(
     "sendMsg"
   );
@@ -77,8 +65,6 @@ export const Chat: React.FC<ChatProps> = ({
       variables: { id },
       // @ts-ignore
       updateQuery: (prev, { subscriptionData }) => {
-        // console.log("we are sub");
-        // console.log(subscriptionData.data);
         if (!subscriptionData.data) return prev;
 
         if (subscriptionData.data.msgsSub.type === "newMsg") {
@@ -111,54 +97,62 @@ export const Chat: React.FC<ChatProps> = ({
   }, []);
 
   return (
-    <ul
+    <Grid
+      columns={1}
+      grow
       style={{
-        display: "flex",
-        flexDirection: "column",
-        width: "fit-content",
-        gap: "10px",
+        margin: 0,
+        padding: 0,
       }}
     >
-      {data?.msgs?.map(({ text, id: msgId }: { text: string; id: number }) => (
-        <MsgMenu
-          key={msgId}
-          text={text}
-          id={msgId}
-          deleteMsg={deleteMsg}
-          updateMsg={updateMsg}
-          onTryUpdatingMsg={onTryUpdatingMsg}
-          chatId={id}
-        />
-      ))}
+      <ul
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          width: "fit-content",
+          gap: "10px",
+        }}
+      >
+        {data?.msgs?.map(
+          ({ text, id: msgId }: { text: string; id: number }) => (
+            <MsgMenu
+              key={msgId}
+              text={text}
+              id={msgId}
+              deleteMsg={deleteMsg}
+              updateMsg={updateMsg}
+              onTryUpdatingMsg={onTryUpdatingMsg}
+              chatId={id}
+            />
+          )
+        )}
+      </ul>
       <form
         onSubmit={(e) => {
           e.preventDefault();
-          // console.log(inputField);
-          // subscriptionAction?.setState("newMsg");
           userMsgAction === "sendMsg"
             ? sendMsg({ variables: { text: inputField, id: id } })
             : updateMsg({
                 variables: { id: currMsgId, chatId: id, text: inputField },
               });
-          // console.log("message sent");
           setInputField("");
           setUserMsgAction("sendMsg");
         }}
         style={{
-          position: "absolute",
+          position: "fixed",
           bottom: 0,
-          width: "100%",
+          width: "85%",
           marginLeft: 0,
           paddingLeft: 0,
         }}
       >
-        <input
+        <TextInput
           ref={inputRef}
           type="text"
           style={{
-            width: "85%",
-            marginLeft: 0,
-            paddingLeft: 0,
+            // backgroundColor: theme.colors.dark[6],
+            // color: theme.colors.dark[6],
+            width: "100%",
           }}
           placeholder="Type something..."
           value={inputField}
@@ -170,6 +164,6 @@ export const Chat: React.FC<ChatProps> = ({
           }}
         />
       </form>
-    </ul>
+    </Grid>
   );
 };
