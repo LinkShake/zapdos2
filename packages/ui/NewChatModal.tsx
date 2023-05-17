@@ -1,10 +1,30 @@
-import { useContext, useEffect } from "react";
+"use client";
+import { useContext, useEffect, useState } from "react";
 import { NewChatModalContext } from "../../apps/client/context/NewChatModalContext";
 import { Flex, Input, TextInput, useMantineTheme } from "@mantine/core";
+import { useQuery, gql } from "@apollo/client";
+import { ChatAvatar } from "./ChatAvatar";
+import { useUser } from "@clerk/clerk-react";
 
 export const NewChatModal = () => {
+  const { user } = useUser();
   const ctx = useContext(NewChatModalContext);
   const theme = useMantineTheme();
+  const [searchedUser, setSearchedUser] = useState<string>("");
+  const { data, refetch } = useQuery(
+    gql`
+      query Users($searchParams: String) {
+        users(searchParams: $searchParams) {
+          id
+          username
+          image
+        }
+      }
+    `,
+    {
+      variables: { searchParams: searchedUser },
+    }
+  );
 
   useEffect(() => {
     const onEscapeKey = (e: React.KeyboardEvent<HTMLDivElement>) => {
@@ -49,8 +69,31 @@ export const NewChatModal = () => {
         }}
       >
         <Flex justify="center" align="center" direction="column" wrap="wrap">
-          <TextInput placeholder="Search for a user..." />
-          <div>Users</div>
+          <TextInput
+            placeholder="Search for a user..."
+            value={searchedUser}
+            onChange={(e) => {
+              // @ts-ignore
+              setSearchedUser(e.target?.value);
+              // @ts-ignore
+              refetch({ searchParams: e.target?.value });
+            }}
+          />
+          <div>
+            {data?.users?.map(
+              (props: { id: string; username: string; image: string }) => {
+                console.log(props);
+                return (
+                  <ChatAvatar
+                    key={props.id}
+                    variant="userAvatar"
+                    chatUser={props}
+                    myId={user?.id}
+                  />
+                );
+              }
+            )}
+          </div>
         </Flex>
       </div>
     </>

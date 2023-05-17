@@ -111,16 +111,13 @@ function Home() {
   const toggleColorScheme = (value?: ColorScheme) =>
     setColorScheme(value || (colorScheme === "dark" ? "light" : "dark"));
   useHotkeys([["mod+J", () => toggleColorScheme()]]);
-  const [chatId, setChatId] = useState<string>("");
   const [newChatModalState, setNewChatModalState] = useState<
     "opened" | "closed"
   >("closed");
   const { user: userData } = useUser();
-  const {
-    data: chats,
-    error,
-    loading,
-  } = useQuery(CHATS_QUERY, { variables: { id: userData?.id } });
+  const { data: chats } = useQuery(CHATS_QUERY, {
+    variables: { id: userData?.id },
+  });
   const [sendMsg] = useMutation(SEND_MSG_MUTATION);
   const [deleteMsg] = useMutation(DELETE_MSG_MUTATION);
   const [updateMsg] = useMutation(UPDATE_MSG_MUTATION);
@@ -141,6 +138,7 @@ function Home() {
             <MantineProvider
               theme={{
                 colorScheme,
+                fontFamily: "Roboto, sans-serif",
                 components: {
                   InputWrapper: {
                     styles: (theme) => ({

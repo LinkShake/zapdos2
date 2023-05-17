@@ -83,7 +83,7 @@ const schema: any = createSchema({
             hello: String,
             msgs(id: String): [Message],
             chats(id: String): [Chat],
-            users: [User]
+            users(searchParams: String): [User]
         }
 
         type Mutation {
@@ -148,7 +148,29 @@ const schema: any = createSchema({
 
         return msgs;
       },
-      users: () => prisma.user.findMany(),
+      users: async (_, { searchParams }) => {
+        const matchUsers = await clerkClient.users.getUserList();
+
+        if (!searchParams) {
+          return matchUsers;
+        }
+
+        const returnUsers = matchUsers
+          .filter(
+            ({ username }) =>
+              username?.toLowerCase().slice(0, 4).includes(searchParams) ||
+              username?.toUpperCase().slice(0, 4).includes(searchParams)
+          )
+          .map(({ id, username, profileImageUrl }) => {
+            return {
+              id,
+              username,
+              image: profileImageUrl,
+            };
+          });
+
+        return returnUsers;
+      },
       chats: async (_, { id }: { id: string }) => {
         console.log(id);
         const chats = await prisma.chat.findMany({
@@ -197,8 +219,6 @@ const schema: any = createSchema({
         // );
 
         const actualChats = await addUserDataToChats(chats, id);
-
-        console.log("actualsChats: ", actualChats);
 
         return [...actualChats];
       },

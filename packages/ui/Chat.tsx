@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { MsgMenu } from "./MsgMenu";
 import { useMessagesContext } from "../../apps/client/hooks/useMessagesContext";
 import { TextInput, Grid, MediaQuery } from "@mantine/core";
+import { useMediaQuery } from "@mantine/hooks";
 
 interface ChatProps {
   id: string;
@@ -38,6 +39,7 @@ export const Chat: React.FC<ChatProps> = ({
   deleteMsg,
   updateMsg,
 }) => {
+  const match = useMediaQuery("(max-width: 768px)");
   const [userMsgAction, setUserMsgAction] = useState<"sendMsg" | "updateMsg">(
     "sendMsg"
   );
@@ -45,8 +47,7 @@ export const Chat: React.FC<ChatProps> = ({
   const [currMsgId, setCurrMsgId] = useState<number>(0);
 
   // @ts-expect-error
-  const [{ data, loading, error, subscribeToMore }, subscription] =
-    useMessagesContext({ id });
+  const [{ data, subscribeToMore }, subscription] = useMessagesContext({ id });
 
   const onTryUpdatingMsg = (
     actionType: "sendMsg" | "updateMsg",
@@ -94,6 +95,8 @@ export const Chat: React.FC<ChatProps> = ({
         }
       },
     });
+
+    // eslint-disable-next-line
   }, []);
 
   return (
@@ -139,19 +142,23 @@ export const Chat: React.FC<ChatProps> = ({
           setUserMsgAction("sendMsg");
         }}
         style={{
+          float: "right",
+          display: "flex",
+          flexWrap: "wrap",
           position: "fixed",
           bottom: 0,
-          width: "85%",
+          width: match ? "100vw" : `85vw`,
           marginLeft: 0,
+          marginRight: 0,
           paddingLeft: 0,
+          paddingRight: 0,
+          // border: "2px solid red",
         }}
       >
         <TextInput
           ref={inputRef}
           type="text"
           style={{
-            // backgroundColor: theme.colors.dark[6],
-            // color: theme.colors.dark[6],
             width: "100%",
           }}
           placeholder="Type something..."

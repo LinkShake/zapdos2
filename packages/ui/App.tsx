@@ -1,5 +1,5 @@
 import "./styles.css";
-import React, { Dispatch, SetStateAction, useContext, useState } from "react";
+import React, { Dispatch, SetStateAction, useState } from "react";
 import {
   AppShell,
   Navbar,
@@ -10,10 +10,12 @@ import {
   useMantineColorScheme,
   useMantineTheme,
 } from "@mantine/core";
+import { useMediaQuery } from "@mantine/hooks";
 import { IconMoonStars, IconSun } from "@tabler/icons-react";
 import { NewChatBtn } from "./NewChatBtn";
 import { ChatAvatar } from "./ChatAvatar";
 import { Chat } from "./Chat";
+import { ClerkProvider } from "@clerk/clerk-react";
 
 interface User {
   id: string;
@@ -69,6 +71,7 @@ export const App: React.FC<AppShellProps> = ({
   updateMsg,
 }) => {
   const theme = useMantineTheme();
+  const match = useMediaQuery("(max-width: 768px)");
   const { colorScheme, toggleColorScheme } = useMantineColorScheme();
   const [chatId, setChatId] = useState<string>("");
   const [chat, setChat] = useState<boolean>(false);
@@ -86,6 +89,8 @@ export const App: React.FC<AppShellProps> = ({
               : theme.colors.gray[1],
           margin: 0,
           padding: "auto",
+          paddingLeft: match ? 0 : "auto",
+          paddingRight: match ? 0 : "auto",
         },
       }}
       fixed
@@ -110,6 +115,7 @@ export const App: React.FC<AppShellProps> = ({
             return (
               <ChatAvatar
                 key={chatMetaData.id}
+                variant="chatAvatar"
                 chatUser={chatUser}
                 setChat={setChat}
                 setOpened={setOpened}

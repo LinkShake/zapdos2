@@ -1,4 +1,5 @@
-import { Avatar, Navbar } from "@mantine/core";
+import { Avatar, Navbar, Title } from "@mantine/core";
+import { useMutation, gql } from "@apollo/client";
 
 interface User {
   id: string;
@@ -7,34 +8,53 @@ interface User {
 }
 
 interface ChatAvatarProps {
-  id: string;
+  id?: string;
+  myId?: string;
   chatUser: User;
-  notifications: {
+  notifications?: {
     id: string;
     counter: number;
   };
-  setChat: React.Dispatch<React.SetStateAction<boolean>>;
-  setOpened: React.Dispatch<React.SetStateAction<boolean>>;
-  setChatId: React.Dispatch<React.SetStateAction<string>>;
+  setChat?: React.Dispatch<React.SetStateAction<boolean>>;
+  setOpened?: React.Dispatch<React.SetStateAction<boolean>>;
+  setChatId?: React.Dispatch<React.SetStateAction<string>>;
+  variant: "chatAvatar" | "userAvatar";
 }
 
 export const ChatAvatar: React.FC<ChatAvatarProps> = ({
   id: chatId,
   chatUser,
+  myId,
   notifications,
   setChat,
   setOpened,
   setChatId,
+  variant,
 }) => {
+  const [createChat] = useMutation(
+    gql`
+      mutation createChat($id: String!, $id2: String!) {
+        createChat(id: $id, id2: $id2) {
+          id
+        }
+      }
+    `
+  );
   return (
     <Navbar.Section
       className="chat-avatar"
       onClick={() => {
-        setChatId(chatId);
-        setChat(() => {
-          setOpened(false);
-          return true;
-        });
+        if (variant === "chatAvatar") {
+          if (setChatId && chatId && setChat && setOpened) {
+            setChatId(chatId);
+            setChat(() => {
+              setOpened(false);
+              return true;
+            });
+          }
+        } else {
+          createChat({ variables: { id: myId, id2: chatUser.id } });
+        }
       }}
       style={{
         width: "100%",
@@ -44,7 +64,7 @@ export const ChatAvatar: React.FC<ChatAvatarProps> = ({
       }}
     >
       <Avatar src={chatUser.image} alt="user_profile" radius={"xl"} />
-      <h3>{chatUser.username}</h3>
+      <Title order={4}>{chatUser.username}</Title>
     </Navbar.Section>
   );
 };
