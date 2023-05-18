@@ -87,7 +87,7 @@ const schema: any = createSchema({
         }
 
         type Mutation {
-            sendMsg(text: String!, id: String): Message!
+            sendMsg(text: String!, id: String, to: String): Message!
             deleteMsg(id: Int!, chatId: String!): [Message]
             updateMsg(id: Int!, text: String!, chatId: String!): Message!
             createChat(id: String!, id2: String!): Chat
@@ -95,6 +95,7 @@ const schema: any = createSchema({
 
         type Subscription {
             msgsSub(id: String): PubSubType!
+            chatsSub(id: String): ChatSub!
             newMsg: Message! 
             deletedMsg: [Message]
             updatedMsg: Message!
@@ -127,6 +128,15 @@ const schema: any = createSchema({
         }
 
         union UserData = Id | User 
+
+        type ChatSub {
+          type: String
+          id: String
+          user1: User
+          user2: User
+          messages: [Message]
+          notifications: Notification
+        }
 
         type Chat {
           id: String!
@@ -192,32 +202,6 @@ const schema: any = createSchema({
 
         console.log(chats[0].notifications);
 
-        // const chatsWithUserData = chats.map(
-        //   async ({ user1, user2, id, messages, notifications }) => {
-        //     if (id !== user1) {
-        //       const userOne = await clerkClient.users.getUser({});
-
-        //       return {
-        //         id,
-        //         user1: userOne,
-        //         user2,
-        //         messages,
-        //         notifications,
-        //       };
-        //     } else {
-        //       const userTwo = await clerkClient.users.getUser(user2);
-
-        //       return {
-        //         id,
-        //         user1,
-        //         user2: userTwo,
-        //         messages,
-        //         notifications,
-        //       };
-        //     }
-        //   }
-        // );
-
         const actualChats = await addUserDataToChats(chats, id);
 
         return [...actualChats];
@@ -227,6 +211,10 @@ const schema: any = createSchema({
       msgsSub: {
         subscribe: (_, { id }: { id: string }, ctx: GraphQLContext) =>
           ctx.pubSub.subscribe(`msgsSub_${id}`),
+      },
+      chatsSub: {
+        subscribe: (_, { id }: { id: string }, ctx: GraphQLContext) =>
+          ctx.pubSub.subscribe(`chatsSub_${id}`),
       },
       newMsg: {
         subscribe: (_, __, ctx: GraphQLContext) =>
@@ -244,7 +232,7 @@ const schema: any = createSchema({
     Mutation: {
       sendMsg: async (
         _,
-        args: { id: string; text: string },
+        args: { id: string; text: string; to: string },
         ctx: GraphQLContext
       ) => {
         // const chat = await prisma.chat.findUnique({
@@ -297,6 +285,36 @@ const schema: any = createSchema({
             },
           });
 
+          const chat = await prisma.chat.findUnique({
+            where: {
+              id: args.id,
+            },
+            include: {
+              notifications: true,
+            },
+          });
+
+          const updatedChat = await prisma.chat.update({
+            where: {
+              id: args.id,
+            },
+            data: {
+              notifications: {
+                create: {
+                  counter: 1,
+                },
+                update: {
+                  counter:
+                    chat?.notifications?.counter &&
+                    chat.notifications.counter + 1,
+                },
+              },
+            },
+            include: {
+              notifications: true,
+            },
+          });
+
           // const msgArr = await prisma.message.findMany({
           //   where: {
           //     chatId: args.id,
@@ -316,6 +334,14 @@ const schema: any = createSchema({
           // ctx.pubSub.publish(`newMsg_${args.to}`, {
           //   newMsg: { text: args.text },
           // });
+          ctx.pubSub.publish(`chatsSub_${args.to}`, {
+            chatsSub: {
+              type: "newNotification",
+              notifications: {
+                counter: updatedChat.notifications?.counter,
+              },
+            },
+          });
           ctx.pubSub.publish(`msgsSub_${args.id}`, {
             msgsSub: {
               msg,
@@ -388,8 +414,6 @@ const schema: any = createSchema({
             chatId: args.chatId,
           },
         });
-        // const msg = await prisma.message.findUnique({ where: { id: args.id } });
-        console.log(updatedMsg?.id);
         ctx.pubSub.publish(`msgsSub_${args.chatId}`, {
           msgsSub: {
             msg: {
@@ -402,13 +426,25 @@ const schema: any = createSchema({
 
         return { text: updatedMsg?.text };
       },
-      createChat: async (_, args: { id: string; id2: string }, __) => {
+      createChat: async (
+        _,
+        args: { id: string; id2: string; ctx: GraphQLContext },
+        __
+      ) => {
         const newChat = await prisma.chat.create({
           data: {
             user1: args.id,
             user2: args.id2,
             // messages: [] as any,
             // notifications: [] as any,
+          },
+        });
+
+        const chatWithUserData = await addUserDataToChats([newChat], args.id);
+
+        args.ctx.pubSub.publish(`chatsSub_${args.id2}`, {
+          chatsSub: {
+            ...chatWithUserData,
           },
         });
 

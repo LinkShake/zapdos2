@@ -1,5 +1,6 @@
 import { Avatar, Navbar, Title } from "@mantine/core";
 import { useMutation, gql } from "@apollo/client";
+import { useRouter } from "next/navigation";
 
 interface User {
   id: string;
@@ -31,6 +32,7 @@ export const ChatAvatar: React.FC<ChatAvatarProps> = ({
   setChatId,
   variant,
 }) => {
+  const router = useRouter();
   const [createChat] = useMutation(
     gql`
       mutation createChat($id: String!, $id2: String!) {
@@ -54,6 +56,7 @@ export const ChatAvatar: React.FC<ChatAvatarProps> = ({
           }
         } else {
           createChat({ variables: { id: myId, id2: chatUser.id } });
+          router.refresh();
         }
       }}
       style={{
