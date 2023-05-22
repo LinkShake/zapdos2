@@ -19,6 +19,7 @@ interface ChatAvatarProps {
   setChat?: React.Dispatch<React.SetStateAction<boolean>>;
   setOpened?: React.Dispatch<React.SetStateAction<boolean>>;
   setChatId?: React.Dispatch<React.SetStateAction<string>>;
+  setChatUserId?: React.Dispatch<React.SetStateAction<string>>;
   variant: "chatAvatar" | "userAvatar";
 }
 
@@ -30,6 +31,7 @@ export const ChatAvatar: React.FC<ChatAvatarProps> = ({
   setChat,
   setOpened,
   setChatId,
+  setChatUserId,
   variant,
 }) => {
   const router = useRouter();
@@ -47,16 +49,17 @@ export const ChatAvatar: React.FC<ChatAvatarProps> = ({
       className="chat-avatar"
       onClick={() => {
         if (variant === "chatAvatar") {
-          if (setChatId && chatId && setChat && setOpened) {
+          if (setChatId && chatId && setChat && setOpened && setChatUserId) {
+            setChatUserId(chatUser.id);
             setChatId(chatId);
             setChat(() => {
               setOpened(false);
               return true;
             });
           }
-        } else {
+        } else if (variant === "userAvatar") {
           createChat({ variables: { id: myId, id2: chatUser.id } });
-          router.refresh();
+          // router.refresh();
         }
       }}
       style={{

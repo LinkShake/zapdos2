@@ -7,10 +7,11 @@ import { useMediaQuery } from "@mantine/hooks";
 
 interface ChatProps {
   id: string;
+  chatUserId: string;
   sendMsg: ({
-    variables: { text, id },
+    variables: { text, id, to },
   }: {
-    variables: { text: string; id: string };
+    variables: { text: string; id: string; to: string };
   }) => void;
   setInputField: React.Dispatch<React.SetStateAction<string>>;
   inputField: string;
@@ -26,13 +27,9 @@ interface ChatProps {
   }) => void;
 }
 
-interface Message {
-  id: number;
-  text: string;
-}
-
 export const Chat: React.FC<ChatProps> = ({
   id,
+  chatUserId,
   sendMsg,
   setInputField,
   inputField,
@@ -47,7 +44,9 @@ export const Chat: React.FC<ChatProps> = ({
   const [currMsgId, setCurrMsgId] = useState<number>(0);
 
   // @ts-expect-error
-  const [{ data, subscribeToMore }, subscription] = useMessagesContext({ id });
+  const [{ data, error, subscribeToMore }, subscription] = useMessagesContext({
+    id,
+  });
 
   const onTryUpdatingMsg = (
     actionType: "sendMsg" | "updateMsg",
@@ -99,6 +98,10 @@ export const Chat: React.FC<ChatProps> = ({
     // eslint-disable-next-line
   }, []);
 
+  if (error) {
+    return <div>{error.message}</div>;
+  }
+
   return (
     <Grid
       columns={1}
@@ -106,71 +109,85 @@ export const Chat: React.FC<ChatProps> = ({
       style={{
         margin: 0,
         padding: 0,
+        // gap: "10px",
+        border: "2px solid red",
+        maxHeight: "90vh",
+        // gridTemplateRows: "90fr 10fr",
+        overflowY: "auto",
+        scrollbarWidth: "none",
       }}
     >
-      <ul
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          width: "fit-content",
-          gap: "10px",
-        }}
-      >
-        {data?.msgs?.map(
-          ({ text, id: msgId }: { text: string; id: number }) => (
-            <MsgMenu
-              key={msgId}
-              text={text}
-              id={msgId}
-              deleteMsg={deleteMsg}
-              updateMsg={updateMsg}
-              onTryUpdatingMsg={onTryUpdatingMsg}
-              chatId={id}
-            />
-          )
-        )}
-      </ul>
-      <form
-        onSubmit={(e) => {
-          e.preventDefault();
-          userMsgAction === "sendMsg"
-            ? sendMsg({ variables: { text: inputField, id: id } })
-            : updateMsg({
-                variables: { id: currMsgId, chatId: id, text: inputField },
-              });
-          setInputField("");
-          setUserMsgAction("sendMsg");
-        }}
-        style={{
-          float: "right",
-          display: "flex",
-          flexWrap: "wrap",
-          position: "fixed",
-          bottom: 0,
-          width: match ? "100vw" : `85vw`,
-          marginLeft: 0,
-          marginRight: 0,
-          paddingLeft: 0,
-          paddingRight: 0,
-          // border: "2px solid red",
-        }}
-      >
-        <TextInput
-          ref={inputRef}
-          type="text"
+      <>
+        <ul
           style={{
-            width: "100%",
+            display: "flex",
+            flexDirection: "column",
+            width: "fit-content",
+            gap: "10px",
           }}
-          placeholder="Type something..."
-          value={inputField}
-          onChange={(e) => {
-            const evt =
-              e.target as unknown as React.ChangeEvent<HTMLInputElement>;
-            // @ts-ignore
-            setInputField(evt?.value);
+        >
+          {data?.msgs?.map(
+            ({ text, id: msgId }: { text: string; id: number }) => (
+              <MsgMenu
+                key={msgId}
+                text={text}
+                id={msgId}
+                deleteMsg={deleteMsg}
+                updateMsg={updateMsg}
+                onTryUpdatingMsg={onTryUpdatingMsg}
+                chatId={id}
+              />
+            )
+          )}
+        </ul>
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            userMsgAction === "sendMsg"
+              ? sendMsg({
+                  variables: { text: inputField, id: id, to: chatUserId },
+                })
+              : updateMsg({
+                  variables: { id: currMsgId, chatId: id, text: inputField },
+                });
+            setInputField("");
+            setUserMsgAction("sendMsg");
           }}
-        />
-      </form>
+          style={{
+            float: "right",
+            display: "flex",
+            flexWrap: "wrap",
+            position: "fixed",
+            height: "2.5rem",
+            bottom: 0,
+            width: match ? "100vw" : `85vw`,
+            marginLeft: 0,
+            marginRight: 0,
+            paddingLeft: 0,
+            paddingRight: 0,
+            marginTop: "2px",
+            // border: "2px solid red",
+          }}
+        >
+          <TextInput
+            ref={inputRef}
+            type="text"
+            style={{
+              width: "100%",
+              height: "2.5rem",
+              marginTop: "2px",
+            }}
+            placeholder="Type something..."
+            value={inputField}
+            onChange={(e) => {
+              const evt =
+                e.target as unknown as React.ChangeEvent<HTMLInputElement>;
+              // @ts-ignore
+              setInputField(evt?.value);
+            }}
+          />
+        </form>
+      </>
     </Grid>
   );
 };

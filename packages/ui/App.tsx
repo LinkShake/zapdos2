@@ -40,9 +40,9 @@ interface AppShellProps {
   themeState: "dark" | "light";
   // msgsArr: Array<{ text: string; id: number; chatId: string }>;
   sendMsg: ({
-    variables: { text, id },
+    variables: { text, id, to },
   }: {
-    variables: { text: string; id: string };
+    variables: { text: string; id: string; to: string };
   }) => void;
   UserProfile: React.ReactNode;
   chats: Chats[];
@@ -74,6 +74,7 @@ export const App: React.FC<AppShellProps> = ({
   const match = useMediaQuery("(max-width: 768px)");
   const { colorScheme, toggleColorScheme } = useMantineColorScheme();
   const [chatId, setChatId] = useState<string>("");
+  const [chatUserId, setChatUserId] = useState<string>("");
   const [chat, setChat] = useState<boolean>(false);
   const [opened, setOpened] = useState<boolean>(!chat);
   const [inputField, setInputField] = useState<string>("");
@@ -120,6 +121,7 @@ export const App: React.FC<AppShellProps> = ({
                 setChat={setChat}
                 setOpened={setOpened}
                 setChatId={setChatId}
+                setChatUserId={setChatUserId}
                 {...chatMetaData}
               />
             );
@@ -209,6 +211,7 @@ export const App: React.FC<AppShellProps> = ({
       {chatId && (
         <Chat
           id={chatId}
+          chatUserId={chatUserId}
           sendMsg={sendMsg}
           setInputField={setInputField}
           inputField={inputField}

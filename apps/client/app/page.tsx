@@ -13,7 +13,6 @@ import {
   ApolloClient,
   InMemoryCache,
   useMutation,
-  DocumentNode,
 } from "@apollo/client";
 import { link } from "../utils/SSELink";
 import { UserButton, useUser } from "@clerk/nextjs/app-beta/client";
@@ -25,15 +24,6 @@ const client = new ApolloClient({
   link,
   cache: new InMemoryCache(),
 });
-
-const MSGS_QUERY = gql`
-  query Msgs($id: String) {
-    msgs(id: $id) {
-      id
-      text
-    }
-  }
-`;
 
 const CHATS_QUERY = gql`
   query Chats($id: String) {
@@ -62,8 +52,8 @@ const CHATS_QUERY = gql`
 `;
 
 const SEND_MSG_MUTATION = gql`
-  mutation sendMsg($text: String!, $id: String!) {
-    sendMsg(text: $text, id: $id) {
+  mutation sendMsg($text: String!, $id: String!, $to: String) {
+    sendMsg(text: $text, id: $id, to: $to) {
       text
     }
   }
@@ -86,17 +76,24 @@ const UPDATE_MSG_MUTATION = gql`
   }
 `;
 
-const MSGS_SUBSCRIPTION = gql`
-  subscription msgsSub($id: String) {
-    msgsSub(id: $id) {
-      msg {
+const CHATS_SUBSCRIPTION = gql`
+  subscription chatsSub($id: String) {
+    chatsSub(id: $id) {
+      type
+      id
+      user1 {
+        username
+      }
+      user2 {
+        username
+      }
+      messages {
         id
         text
       }
-      type
-      msgsArr {
+      notifications {
         id
-        text
+        counter
       }
     }
   }
@@ -115,12 +112,61 @@ function Home() {
     "opened" | "closed"
   >("closed");
   const { user: userData } = useUser();
-  const { data: chats } = useQuery(CHATS_QUERY, {
+  const { data: chats, subscribeToMore } = useQuery(CHATS_QUERY, {
     variables: { id: userData?.id },
+    onError(error) {
+      console.log(error.message);
+    },
   });
   const [sendMsg] = useMutation(SEND_MSG_MUTATION);
   const [deleteMsg] = useMutation(DELETE_MSG_MUTATION);
   const [updateMsg] = useMutation(UPDATE_MSG_MUTATION);
+
+  useEffect(() => {
+    subscribeToMore({
+      document: CHATS_SUBSCRIPTION,
+      onError(error) {
+        console.log(error.message);
+      },
+      variables: { id: userData?.id },
+      updateQuery: (prev, { subscriptionData }) => {
+        if (!subscriptionData.data) return prev;
+
+        const { data } = subscriptionData;
+
+        if (data.type === "newChat") {
+          console.log("new chat created");
+          const formattedData = {
+            id: data?.id,
+            user1: data?.user1,
+            user2: data?.user2,
+            messages: data?.messages,
+            notifications: data?.notifications,
+          };
+
+          return Object.assign({}, prev, {
+            chatsSub: [...prev.chats, formattedData],
+          });
+        } else if (data.type === "newNotification") {
+          const newData = prev.chats.map((_data: any) => {
+            if (_data.id === data.notifications.id) {
+              return {
+                ..._data,
+                notifications: data.notifications,
+              };
+            }
+
+            return _data;
+          });
+
+          return Object.assign({}, prev, {
+            chatsSub: [...newData],
+          });
+        }
+      },
+    });
+    // eslint-disable-next-line
+  }, []);
 
   return (
     <main>

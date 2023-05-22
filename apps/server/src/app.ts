@@ -8,10 +8,25 @@ import * as dotenv from "dotenv";
 import { clerkClient, clerkPlugin } from "@clerk/fastify";
 import { filterUserForClient } from "../helpers/filterUserForClient";
 
+interface IUser {
+  id: string;
+  username: string;
+  image: string;
+}
+
+interface ChatWithData {
+  id: string;
+  user1: IUser;
+  user2: IUser;
+  notifications: {
+    id: string;
+    counter: number;
+  };
+}
+
 dotenv.config();
 
 const app = fastify({ logger: true });
-const msgsArr: Array<{ text: string }> = [];
 
 const addUserDataToChats = async (chatsArr: any[], id: string) => {
   const chats: any[] = [...chatsArr];
@@ -52,9 +67,7 @@ const addUserDataToChats = async (chatsArr: any[], id: string) => {
           username: chatUser?.username,
           image: chatUser?.profileImageUrl,
         },
-        notifications: Array.isArray(chat.notifications)
-          ? [...chat.notifications]
-          : [],
+        notifications: chat.notifications,
       };
     } else {
       return {
@@ -69,12 +82,10 @@ const addUserDataToChats = async (chatsArr: any[], id: string) => {
           username: chatUser?.username,
           image: chatUser?.profileImageUrl,
         },
-        notifications: Array.isArray(chat.notifications)
-          ? [...chat.notifications]
-          : [],
+        notifications: chat.notifications,
       };
     }
-  });
+  }) as ChatWithData[];
 };
 
 const schema: any = createSchema({
@@ -161,8 +172,15 @@ const schema: any = createSchema({
       users: async (_, { searchParams }) => {
         const matchUsers = await clerkClient.users.getUserList();
 
+        console.log(matchUsers);
+
         if (!searchParams) {
-          return matchUsers;
+          return matchUsers.map((user) => {
+            return {
+              ...user,
+              image: user.profileImageUrl,
+            };
+          });
         }
 
         const returnUsers = matchUsers
@@ -172,6 +190,7 @@ const schema: any = createSchema({
               username?.toUpperCase().slice(0, 4).includes(searchParams)
           )
           .map(({ id, username, profileImageUrl }) => {
+            console.log(profileImageUrl);
             return {
               id,
               username,
@@ -182,7 +201,6 @@ const schema: any = createSchema({
         return returnUsers;
       },
       chats: async (_, { id }: { id: string }) => {
-        console.log(id);
         const chats = await prisma.chat.findMany({
           where: {
             OR: [
@@ -199,8 +217,6 @@ const schema: any = createSchema({
             notifications: true,
           },
         });
-
-        console.log(chats[0].notifications);
 
         const actualChats = await addUserDataToChats(chats, id);
 
@@ -428,9 +444,26 @@ const schema: any = createSchema({
       },
       createChat: async (
         _,
-        args: { id: string; id2: string; ctx: GraphQLContext },
-        __
+        args: { id: string; id2: string },
+        ctx: GraphQLContext
       ) => {
+        const chat = await prisma.chat.findMany({
+          where: {
+            OR: [
+              {
+                user1: args.id,
+                user2: args.id2,
+              },
+              {
+                user1: args.id2,
+                user2: args.id,
+              },
+            ],
+          },
+        });
+
+        if (chat.length) throw new Error("Chat already existing!");
+
         const newChat = await prisma.chat.create({
           data: {
             user1: args.id,
@@ -440,13 +473,16 @@ const schema: any = createSchema({
           },
         });
 
-        const chatWithUserData = await addUserDataToChats([newChat], args.id);
+        const [chatWithUserData] = await addUserDataToChats([newChat], args.id);
 
-        args.ctx.pubSub.publish(`chatsSub_${args.id2}`, {
-          chatsSub: {
-            ...chatWithUserData,
-          },
-        });
+        [args.id, args.id2].forEach((id) =>
+          ctx.pubSub.publish(`chatsSub_${id}`, {
+            chatsSub: {
+              type: "newChat",
+              ...chatWithUserData,
+            },
+          })
+        );
 
         return newChat;
       },

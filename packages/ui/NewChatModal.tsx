@@ -11,7 +11,7 @@ export const NewChatModal = () => {
   const ctx = useContext(NewChatModalContext);
   const theme = useMantineTheme();
   const [searchedUser, setSearchedUser] = useState<string>("");
-  const { data, refetch } = useQuery(
+  const { data, error, refetch } = useQuery(
     gql`
       query Users($searchParams: String) {
         users(searchParams: $searchParams) {
@@ -23,6 +23,9 @@ export const NewChatModal = () => {
     `,
     {
       variables: { searchParams: searchedUser },
+      onError(error) {
+        console.log(error.message);
+      },
     }
   );
 
@@ -36,6 +39,10 @@ export const NewChatModal = () => {
     // @ts-ignore
     return () => window?.removeEventListener("keydown", onEscapeKey);
   });
+
+  if (error) {
+    return <div>{error.message}</div>;
+  }
 
   return (
     <>
@@ -82,7 +89,6 @@ export const NewChatModal = () => {
           <div>
             {data?.users?.map(
               (props: { id: string; username: string; image: string }) => {
-                console.log(props);
                 return (
                   <ChatAvatar
                     key={props.id}
