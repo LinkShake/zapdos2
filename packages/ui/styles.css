@@ -22,3 +22,7 @@
   height: 3.5rem;
   width: 3.5rem;
 }
+
+.msgs-chat-list::-webkit-scrollbar {
+  display: none;
+}
