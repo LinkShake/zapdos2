@@ -73,19 +73,15 @@ interface MsgMenuProps {
     msgBody: string,
     msgId: number
   ) => void;
-
+  msgRef: any;
   chatId: string;
 }
 
 export const MsgMenu: React.FC<MsgMenuProps> = forwardRef(
-  function MsgMenuWithRef({
-    text,
-    id,
-    deleteMsg,
-    updateMsg,
-    onTryUpdatingMsg,
-    chatId,
-  }) {
+  function MsgMenuWithRef(
+    { text, id, deleteMsg, onTryUpdatingMsg, chatId },
+    msgRef
+  ) {
     const theme = useMantineTheme();
     return (
       <Menu shadow="md" width={200}>

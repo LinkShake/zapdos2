@@ -36,6 +36,7 @@ export const Chat: React.FC<ChatProps> = ({
   deleteMsg,
   updateMsg,
 }) => {
+  const chatMsgsRef: null | React.RefObject<any> = useRef(null);
   const match = useMediaQuery("(max-width: 768px)");
   const [userMsgAction, setUserMsgAction] = useState<"sendMsg" | "updateMsg">(
     "sendMsg"
@@ -60,6 +61,9 @@ export const Chat: React.FC<ChatProps> = ({
   };
 
   useEffect(() => {
+    if (chatMsgsRef.current) {
+      chatMsgsRef.current?.scrollTo(0, 0);
+    }
     subscribeToMore({
       document: subscription,
       variables: { id },
@@ -121,6 +125,7 @@ export const Chat: React.FC<ChatProps> = ({
     >
       <ul
         className="msgs-chat-list"
+        ref={chatMsgsRef}
         style={{
           display: "flex",
           flexDirection: "column",
@@ -142,6 +147,7 @@ export const Chat: React.FC<ChatProps> = ({
               updateMsg={updateMsg}
               onTryUpdatingMsg={onTryUpdatingMsg}
               chatId={id}
+              msgRef={chatMsgsRef}
             />
           )
         )}

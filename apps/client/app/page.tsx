@@ -151,7 +151,7 @@ function Home() {
           };
 
           return Object.assign({}, prev, {
-            chatsSub: [...prev.chats, formattedData],
+            chats: [...prev.chats, formattedData],
           });
         } else if (data.type === "newNotification") {
           console.log("new notifications 4 u");
@@ -167,7 +167,7 @@ function Home() {
           });
 
           return Object.assign({}, prev, {
-            chatsSub: [...newData],
+            chats: [...newData],
           });
         }
       },
