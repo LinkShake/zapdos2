@@ -77,14 +77,16 @@ const UPDATE_MSG_MUTATION = gql`
 `;
 
 const CHATS_SUBSCRIPTION = gql`
-  subscription chatsSub($id: String) {
+  subscription ChatSub($id: String) {
     chatsSub(id: $id) {
       type
       id
       user1 {
+        id
         username
       }
       user2 {
+        id
         username
       }
       messages {
@@ -130,9 +132,13 @@ function Home() {
       },
       variables: { id: userData?.id },
       updateQuery: (prev, { subscriptionData }) => {
+        console.log("subscription hit");
         if (!subscriptionData.data) return prev;
 
-        const { data } = subscriptionData;
+        const { data: dataObj } = subscriptionData;
+        const data = dataObj.chatsSub;
+
+        console.log(data);
 
         if (data.type === "newChat") {
           console.log("new chat created");
@@ -148,6 +154,7 @@ function Home() {
             chatsSub: [...prev.chats, formattedData],
           });
         } else if (data.type === "newNotification") {
+          console.log("new notifications 4 u");
           const newData = prev.chats.map((_data: any) => {
             if (_data.id === data.notifications.id) {
               return {
@@ -166,7 +173,7 @@ function Home() {
       },
     });
     // eslint-disable-next-line
-  }, []);
+  }, [userData?.id]);
 
   return (
     <main>

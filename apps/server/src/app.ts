@@ -354,6 +354,7 @@ const schema: any = createSchema({
             chatsSub: {
               type: "newNotification",
               notifications: {
+                id: args.id,
                 counter: updatedChat.notifications?.counter,
               },
             },
