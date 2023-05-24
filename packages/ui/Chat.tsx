@@ -4,6 +4,8 @@ import { MsgMenu } from "./MsgMenu";
 import { useMessagesContext } from "../../apps/client/hooks/useMessagesContext";
 import { TextInput, Grid, MediaQuery } from "@mantine/core";
 import { useMediaQuery } from "@mantine/hooks";
+import { ChatNavbar } from "./ChatNavbar";
+import { useQuery, gql } from "@apollo/client";
 
 interface ChatProps {
   id: string;
@@ -36,6 +38,22 @@ export const Chat: React.FC<ChatProps> = ({
   deleteMsg,
   updateMsg,
 }) => {
+  const { data: user } = useQuery(
+    gql`
+      query getUser($id: String) {
+        getUser(id: $id) {
+          username
+          image
+        }
+      }
+    `,
+    {
+      variables: { id: chatUserId },
+    }
+  );
+
+  console.log(user);
+
   const chatMsgsRef: null | React.RefObject<any> = useRef(null);
   const match = useMediaQuery("(max-width: 768px)");
   const [userMsgAction, setUserMsgAction] = useState<"sendMsg" | "updateMsg">(
@@ -111,18 +129,25 @@ export const Chat: React.FC<ChatProps> = ({
       columns={1}
       grow
       style={{
+        top: 0,
+        right: 0,
         margin: 0,
         padding: 0,
         gap: "5rem",
         border: "2px solid red",
+        width: "100%",
         //maxHeight: "90vh",
-        height: "90vh",
+        height: "97vh",
         //overflowY: "auto",
-        gridTemplateRows: "90fr 10fr",
+        gridTemplateRows: "10fr 80fr 10fr",
         scrollbarWidth: "none",
         position: "relative",
       }}
     >
+      <ChatNavbar
+        profile={user?.getUser?.image}
+        userName={user?.getUser?.username}
+      />
       <ul
         className="msgs-chat-list"
         ref={chatMsgsRef}
@@ -130,8 +155,9 @@ export const Chat: React.FC<ChatProps> = ({
           display: "flex",
           flexDirection: "column",
           position: "absolute",
-          width: "fit-content",
+          width: "100%",
           gap: "10px",
+          top: "3.2rem",
           maxHeight: "93%",
           overflowY: "auto",
           border: "2px solid blue",

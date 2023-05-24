@@ -95,6 +95,7 @@ const schema: any = createSchema({
             msgs(id: String): [Message],
             chats(id: String): [Chat],
             users(searchParams: String): [User]
+            getUser(id: String): User
         }
 
         type Mutation {
@@ -160,6 +161,13 @@ const schema: any = createSchema({
   resolvers: {
     Query: {
       hello: () => "hello from graphql-yoga",
+      getUser: async (_, { id }: { id: string }) => {
+        const user = await clerkClient.users.getUser(id);
+        return {
+          ...user,
+          image: user.profileImageUrl,
+        };
+      },
       msgs: async (_, { id }) => {
         const msgs = await prisma.message.findMany({
           where: {

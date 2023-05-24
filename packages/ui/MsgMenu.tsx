@@ -84,7 +84,14 @@ export const MsgMenu: React.FC<MsgMenuProps> = forwardRef(
   ) {
     const theme = useMantineTheme();
     return (
-      <Menu shadow="md" width={200}>
+      <Menu
+        shadow="md"
+        width={200}
+        styles={{
+          // @ts-ignore
+          width: "fit-content !important",
+        }}
+      >
         <Menu.Target>
           <Text
             style={{

@@ -1,5 +1,5 @@
 import "./styles.css";
-import React, { Dispatch, SetStateAction, useState } from "react";
+import React, { Dispatch, SetStateAction, useEffect, useState } from "react";
 import {
   AppShell,
   Navbar,
@@ -72,12 +72,20 @@ export const App: React.FC<AppShellProps> = ({
 }) => {
   const theme = useMantineTheme();
   const match = useMediaQuery("(max-width: 768px)");
+  const matchSm = useMediaQuery("(min-width: 48em)");
+  const matchLg = useMediaQuery("(min-width: 75em)");
   const { colorScheme, toggleColorScheme } = useMantineColorScheme();
   const [chatId, setChatId] = useState<string>("");
   const [chatUserId, setChatUserId] = useState<string>("");
   const [chat, setChat] = useState<boolean>(false);
   const [opened, setOpened] = useState<boolean>(!chat);
   const [inputField, setInputField] = useState<string>("");
+  // const [computedLeftP, setComputedLeftP] = useState<string>("300px");
+  const createComputedLeftP = () => {
+    if (matchSm) return "200px";
+    if (matchLg) return "300px";
+    else return "0px";
+  };
 
   return (
     <AppShell
@@ -89,9 +97,15 @@ export const App: React.FC<AppShellProps> = ({
               ? theme.colors.dark[6]
               : theme.colors.gray[1],
           margin: 0,
-          padding: "auto",
-          paddingLeft: match ? 0 : "auto",
-          paddingRight: match ? 0 : "auto",
+          top: 0,
+          right: 0,
+          // padding: "auto",
+          paddingLeft: matchSm ? (matchLg ? "300px" : "200px") : "0px",
+          // paddingLeft: "300px",
+          paddingTop: 0,
+          paddingBottom: 0,
+          paddingRight: 0,
+          // paddingLeft:
         },
       }}
       fixed
@@ -141,72 +155,72 @@ export const App: React.FC<AppShellProps> = ({
       //     Application footer
       //   </Footer>
       // }
-      header={
-        <Header
-          height={{ base: 50, md: 70 }}
-          p="md"
-          style={
-            {
-              // backgroundColor: theme.colors.dark[7],
-              // borderColor: theme.colors.dark[8],
-              // border: "none",
-            }
-          }
-        >
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              height: "100%",
-              justifyContent: "flex-end",
-              maxWidth: "100vw",
-            }}
-          >
-            <MediaQuery largerThan="sm" styles={{ display: "none" }}>
-              <Burger
-                opened={opened}
-                onClick={() => setOpened((o) => !o)}
-                size="sm"
-                // color={theme.colors.gray[6]}
-                mr="xl"
-              />
-            </MediaQuery>
+      // header={
+      //   <Header
+      //     height={{ base: 50, md: 70 }}
+      //     p="md"
+      //     style={
+      //       {
+      //         // backgroundColor: theme.colors.dark[7],
+      //         // borderColor: theme.colors.dark[8],
+      //         // border: "none",
+      //       }
+      //     }
+      //   >
+      //     <div
+      //       style={{
+      //         display: "flex",
+      //         alignItems: "center",
+      //         height: "100%",
+      //         justifyContent: "flex-end",
+      //         maxWidth: "100vw",
+      //       }}
+      //     >
+      //       <MediaQuery largerThan="sm" styles={{ display: "none" }}>
+      //         <Burger
+      //           opened={opened}
+      //           onClick={() => setOpened((o) => !o)}
+      //           size="sm"
+      //           // color={theme.colors.gray[6]}
+      //           mr="xl"
+      //         />
+      //       </MediaQuery>
 
-            <div
-              style={{
-                display: "flex",
-                gap: "1rem",
-                alignItems: "center",
-              }}
-            >
-              <ActionIcon
-                variant="outline"
-                color={colorScheme === "dark" ? "yellow" : "blue"}
-                onClick={() => toggleColorScheme()}
-                title="Toggle color scheme"
-              >
-                {colorScheme === "dark" ? (
-                  <IconSun
-                    size={20}
-                    style={{
-                      borderRadius: "50%",
-                    }}
-                  />
-                ) : (
-                  <IconMoonStars
-                    size={20}
-                    style={{
-                      borderRadius: "50%",
-                    }}
-                  />
-                )}
-              </ActionIcon>
-              {/* </Group> */}
-              {UserProfile}
-            </div>
-          </div>
-        </Header>
-      }
+      //       <div
+      //         style={{
+      //           display: "flex",
+      //           gap: "1rem",
+      //           alignItems: "center",
+      //         }}
+      //       >
+      //         <ActionIcon
+      //           variant="outline"
+      //           color={colorScheme === "dark" ? "yellow" : "blue"}
+      //           onClick={() => toggleColorScheme()}
+      //           title="Toggle color scheme"
+      //         >
+      //           {colorScheme === "dark" ? (
+      //             <IconSun
+      //               size={20}
+      //               style={{
+      //                 borderRadius: "50%",
+      //               }}
+      //             />
+      //           ) : (
+      //             <IconMoonStars
+      //               size={20}
+      //               style={{
+      //                 borderRadius: "50%",
+      //               }}
+      //             />
+      //           )}
+      //         </ActionIcon>
+      //         {/* </Group> */}
+      //         {UserProfile}
+      //       </div>
+      //     </div>
+      //   </Header>
+      // }
     >
       {chatId && (
         <Chat
