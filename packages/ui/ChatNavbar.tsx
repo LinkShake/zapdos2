@@ -16,7 +16,7 @@ export const ChatNavbar: React.FC<ChatNavbarProps> = ({
         border: "2px solid white",
         width: "100%",
         position: "absolute",
-        height: "3rem",
+        height: "4rem",
         zIndex: "2",
       }}
     >
