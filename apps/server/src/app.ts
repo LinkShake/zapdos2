@@ -1,3 +1,6 @@
+import * as dotenv from "dotenv";
+dotenv.config();
+
 import { isAuth } from "../helpers/checkAuth";
 import { createYoga, useExtendContext } from "graphql-yoga";
 import fastify, { FastifyRequest, FastifyReply } from "fastify";
@@ -5,9 +8,9 @@ import { createSchema } from "graphql-yoga";
 import { GraphQLContext } from "./context";
 import { pubSub } from "./pubsub";
 import { prisma } from "../utils/prisma";
-import * as dotenv from "dotenv";
 import { clerkClient, clerkPlugin } from "@clerk/fastify";
 import { filterUserForClient } from "../helpers/filterUserForClient";
+import cors from "@fastify/cors";
 
 interface IUser {
   id: string;
@@ -25,9 +28,12 @@ interface ChatWithData {
   };
 }
 
-dotenv.config();
-
 const app = fastify({ logger: true });
+
+app.register(cors, {
+  origin: "http://localhost:3000",
+  allowedHeaders: ["Authorization", "Content-Type"],
+});
 
 const addUserDataToChats = async (chatsArr: any[], id: string) => {
   const chats: any[] = [...chatsArr];
@@ -524,11 +530,13 @@ const yoga = createYoga<{
 
 console.log("hello world!");
 
+app.register(clerkPlugin);
+
 app.route({
   url: "/graphql",
   method: ["GET", "POST", "OPTIONS", "PUT", "DELETE"],
   handler: async (req, res) => {
-    isAuth(req);
+    isAuth(req, res);
     // Second parameter adds Fastify's `req` and `reply` to the GraphQL Context
     const response = await yoga.handleNodeRequest(req, {
       req,
@@ -550,7 +558,5 @@ app.route({
 app.post("/webhook", (req, res) => {
   console.log(req.body);
 });
-
-app.register(clerkPlugin);
 
 app.listen({ port: 4000 });
