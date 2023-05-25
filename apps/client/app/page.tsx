@@ -210,6 +210,7 @@ function Home() {
                           theme.colorScheme === "dark"
                             ? theme.colors.dark[7]
                             : "white",
+                        borderRadius: "none",
                       },
                     }),
                   },

@@ -134,7 +134,6 @@ export const Chat: React.FC<ChatProps> = ({
         margin: 0,
         padding: 0,
         gap: "5rem",
-        border: "2px solid red",
         width: "100%",
         //maxHeight: "90vh",
         height: "100vh",
@@ -158,9 +157,10 @@ export const Chat: React.FC<ChatProps> = ({
           width: "100%",
           gap: "10px",
           top: "4.2rem",
-          maxHeight: "93%",
+          maxHeight: "91.5%",
           overflowY: "auto",
-          border: "2px solid blue",
+          padding: "2rem",
+          paddingTop: ".5rem",
         }}
       >
         {data?.msgs?.map(
@@ -204,7 +204,6 @@ export const Chat: React.FC<ChatProps> = ({
           paddingLeft: 0,
           paddingRight: 0,
           marginTop: "2px",
-          border: "2px solid yellow",
         }}
       >
         <TextInput

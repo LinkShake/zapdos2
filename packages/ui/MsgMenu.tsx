@@ -84,43 +84,41 @@ export const MsgMenu: React.FC<MsgMenuProps> = forwardRef(
   ) {
     const theme = useMantineTheme();
     return (
-      <Menu
-        shadow="md"
-        width={200}
-        styles={{
-          // @ts-ignore
-          width: "fit-content !important",
+      <div
+        style={{
+          width: "fit-content",
         }}
       >
-        <Menu.Target>
-          <Text
-            style={{
-              backgroundColor:
-                theme.colorScheme === "dark" ? theme.colors.dark[7] : "white",
-              padding: ".5rem",
-              paddingRight: "1rem",
-              paddingLeft: "1rem",
-            }}
-          >
-            <Highlighter
-              highlightClassName="YourHighlightClass"
-              textToHighlight={text}
-              searchWords={["http"]}
-              autoEscape={true}
-              findChunks={findChunks}
-              highlightTag={({ children, highlightIndex }) => (
-                <Linkify>
-                  <span style={{ color: "#67e8f9" }}>{children}</span>
-                </Linkify>
-              )}
-            />
+        <Menu shadow="md" width={200}>
+          <Menu.Target>
+            <Text
+              style={{
+                backgroundColor:
+                  theme.colorScheme === "dark" ? theme.colors.dark[7] : "white",
+                padding: ".5rem",
+                paddingRight: "1rem",
+                paddingLeft: "1rem",
+              }}
+            >
+              <Highlighter
+                highlightClassName="YourHighlightClass"
+                textToHighlight={text}
+                searchWords={["http"]}
+                autoEscape={true}
+                findChunks={findChunks}
+                highlightTag={({ children, highlightIndex }) => (
+                  <Linkify>
+                    <span style={{ color: "#67e8f9" }}>{children}</span>
+                  </Linkify>
+                )}
+              />
 
-            {/* {text} */}
-          </Text>
-        </Menu.Target>
+              {/* {text} */}
+            </Text>
+          </Menu.Target>
 
-        <Menu.Dropdown>
-          {/* <Menu.Label>Application</Menu.Label>
+          <Menu.Dropdown>
+            {/* <Menu.Label>Application</Menu.Label>
         <Menu.Item icon={<IconSettings size={14} />}>Settings</Menu.Item>
         <Menu.Item icon={<IconMessageCircle size={14} />}>Messages</Menu.Item>
         <Menu.Item icon={<IconPhoto size={14} />}>Gallery</Menu.Item>
@@ -137,35 +135,36 @@ export const MsgMenu: React.FC<MsgMenuProps> = forwardRef(
 
         <Menu.Divider /> */}
 
-          <Menu.Label>Message actions</Menu.Label>
-          <Menu.Item
-            icon={<IconCopy size={14} />}
-            onClick={() => {
-              // @ts-ignore
-              navigator.clipboard.writeText(text);
-            }}
-          >
-            Copy{" "}
-          </Menu.Item>
-          <Menu.Item
-            icon={<IconEdit size={14} />}
-            onClick={() => onTryUpdatingMsg("updateMsg", text, id)}
-          >
-            Edit
-          </Menu.Item>
-          <Menu.Item
-            color="red"
-            icon={<IconTrash size={14} />}
-            onClick={() => {
-              // console.log("clicked", id);
-              // subscriptionAction?.setState("deletedMsg");
-              deleteMsg({ variables: { id, chatId } });
-            }}
-          >
-            Delete
-          </Menu.Item>
-        </Menu.Dropdown>
-      </Menu>
+            <Menu.Label>Message actions</Menu.Label>
+            <Menu.Item
+              icon={<IconCopy size={14} />}
+              onClick={() => {
+                // @ts-ignore
+                navigator.clipboard.writeText(text);
+              }}
+            >
+              Copy{" "}
+            </Menu.Item>
+            <Menu.Item
+              icon={<IconEdit size={14} />}
+              onClick={() => onTryUpdatingMsg("updateMsg", text, id)}
+            >
+              Edit
+            </Menu.Item>
+            <Menu.Item
+              color="red"
+              icon={<IconTrash size={14} />}
+              onClick={() => {
+                // console.log("clicked", id);
+                // subscriptionAction?.setState("deletedMsg");
+                deleteMsg({ variables: { id, chatId } });
+              }}
+            >
+              Delete
+            </Menu.Item>
+          </Menu.Dropdown>
+        </Menu>
+      </div>
     );
   }
 );

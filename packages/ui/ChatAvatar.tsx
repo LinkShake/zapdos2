@@ -1,4 +1,4 @@
-import { Avatar, Navbar, Title } from "@mantine/core";
+import { Avatar, Navbar, Title, Button } from "@mantine/core";
 import { useMutation, gql } from "@apollo/client";
 import { useRouter } from "next/navigation";
 
@@ -63,14 +63,44 @@ export const ChatAvatar: React.FC<ChatAvatarProps> = ({
         }
       }}
       style={{
+        display: "flex",
+        flexDirection: "row",
+        justifyContent: "space-between",
         width: "100%",
         borderBottomStyle: "inset",
         borderBottomColor: "gray",
         borderWidth: "0.1rem",
       }}
     >
-      <Avatar src={chatUser.image} alt="user_profile" radius={"xl"} />
-      <Title order={4}>{chatUser.username}</Title>
+      <div
+        style={{
+          display: "flex",
+        }}
+      >
+        <Avatar
+          src={chatUser.image}
+          alt="user_profile"
+          radius={"xl"}
+          style={{
+            marginRight: "10px",
+          }}
+        />
+        <Title order={4}>{chatUser.username}</Title>
+      </div>
+      {notifications?.counter && (
+        <Button
+          color="blue"
+          style={{
+            width: "25px",
+            height: "25px",
+            borderRadius: "50%",
+            fontSize: "12px",
+            padding: "0",
+          }}
+        >
+          {notifications?.counter}
+        </Button>
+      )}
     </Navbar.Section>
   );
 };
