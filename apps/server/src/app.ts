@@ -1,3 +1,4 @@
+import { isAuth } from "../helpers/checkAuth";
 import { createYoga, useExtendContext } from "graphql-yoga";
 import fastify, { FastifyRequest, FastifyReply } from "fastify";
 import { createSchema } from "graphql-yoga";
@@ -527,6 +528,7 @@ app.route({
   url: "/graphql",
   method: ["GET", "POST", "OPTIONS", "PUT", "DELETE"],
   handler: async (req, res) => {
+    isAuth(req);
     // Second parameter adds Fastify's `req` and `reply` to the GraphQL Context
     const response = await yoga.handleNodeRequest(req, {
       req,
