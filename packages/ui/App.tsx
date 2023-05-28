@@ -15,7 +15,7 @@ import { IconMoonStars, IconSun } from "@tabler/icons-react";
 import { NewChatBtn } from "./NewChatBtn";
 import { ChatAvatar } from "./ChatAvatar";
 import { Chat } from "./Chat";
-import { ClerkProvider } from "@clerk/clerk-react";
+import { useMutation, gql } from "@apollo/client";
 
 interface User {
   id: string;
@@ -40,9 +40,14 @@ interface AppShellProps {
   themeState: "dark" | "light";
   // msgsArr: Array<{ text: string; id: number; chatId: string }>;
   sendMsg: ({
-    variables: { text, id, to },
+    variables: { text, id, to, from },
   }: {
-    variables: { text: string; id: string; to: string };
+    variables: {
+      text: string;
+      id: string;
+      to: string;
+      from: string | undefined;
+    };
   }) => void;
   UserProfile: React.ReactNode;
   chats: Chats[];
@@ -60,6 +65,14 @@ interface AppShellProps {
   // setChatId: React.Dispatch<React.SetStateAction<string>>;
 }
 
+const markAsReadGql = gql`
+  mutation markAsRead($id: String, $userId: String) {
+    markAsRead(id: $id, userId: $userId) {
+      counter
+    }
+  }
+`;
+
 export const App: React.FC<AppShellProps> = ({
   currUser,
   setTheme,
@@ -71,7 +84,6 @@ export const App: React.FC<AppShellProps> = ({
   updateMsg,
 }) => {
   const theme = useMantineTheme();
-  const match = useMediaQuery("(max-width: 768px)");
   const matchSm = useMediaQuery("(min-width: 48em)");
   const matchLg = useMediaQuery("(min-width: 75em)");
   const { colorScheme, toggleColorScheme } = useMantineColorScheme();
@@ -80,6 +92,9 @@ export const App: React.FC<AppShellProps> = ({
   const [chat, setChat] = useState<boolean>(false);
   const [opened, setOpened] = useState<boolean>(!chat);
   const [inputField, setInputField] = useState<string>("");
+  const [markAsRead] = useMutation(markAsReadGql, {
+    variables: { id: chatId, userId: currUser },
+  });
   // const [computedLeftP, setComputedLeftP] = useState<string>("300px");
   const createComputedLeftP = () => {
     if (matchSm) return "200px";
@@ -129,6 +144,7 @@ export const App: React.FC<AppShellProps> = ({
                 : chatMetaData.user1;
             return (
               <ChatAvatar
+                onClick={markAsRead}
                 key={chatMetaData.id}
                 variant="chatAvatar"
                 chatUser={chatUser}

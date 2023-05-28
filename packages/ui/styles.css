@@ -26,3 +26,15 @@
 .msgs-chat-list::-webkit-scrollbar {
   display: none;
 }
+
+.msgs-chat-list:not(.msg-actions) {
+  overflow-y: auto;
+}
+
+.msgs-chat-list .my-msg {
+  align-self: flex-end !important;
+}
+
+.msgs-chat-list .not-my-msg {
+  align-self: flex-start !important;
+}

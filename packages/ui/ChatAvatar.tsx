@@ -20,6 +20,11 @@ interface ChatAvatarProps {
   setOpened?: React.Dispatch<React.SetStateAction<boolean>>;
   setChatId?: React.Dispatch<React.SetStateAction<string>>;
   setChatUserId?: React.Dispatch<React.SetStateAction<string>>;
+  onClick?: ({
+    variables: { id, userId },
+  }: {
+    variables: { id: string; userId: string };
+  }) => any;
   variant: "chatAvatar" | "userAvatar";
 }
 
@@ -32,6 +37,7 @@ export const ChatAvatar: React.FC<ChatAvatarProps> = ({
   setOpened,
   setChatId,
   setChatUserId,
+  onClick,
   variant,
 }) => {
   const router = useRouter();
@@ -49,14 +55,17 @@ export const ChatAvatar: React.FC<ChatAvatarProps> = ({
       className="chat-avatar"
       onClick={() => {
         if (variant === "chatAvatar") {
-          if (setChatId && chatId && setChat && setOpened && setChatUserId) {
-            setChatUserId(chatUser.id);
-            setChatId(chatId);
-            setChat(() => {
-              setOpened(false);
-              return true;
-            });
-          }
+          // if (chatId && myId) {
+          // @ts-ignore
+          // onClick?.({ variables: { id: chatId, userId: myId } });
+          setChatUserId?.(chatUser.id);
+          // @ts-ignore
+          setChatId?.(chatId);
+          setChat?.(() => {
+            setOpened?.(false);
+            return true;
+          });
+          // }
         } else if (variant === "userAvatar") {
           createChat({ variables: { id: myId, id2: chatUser.id } });
           // router.refresh();

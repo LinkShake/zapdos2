@@ -6,6 +6,8 @@ export const useMessages = (params: { id: string }) => {
       msgs(id: $id) {
         id
         text
+        from
+        to
       }
     }
   `;
@@ -16,6 +18,8 @@ export const useMessages = (params: { id: string }) => {
         msg {
           id
           text
+          from
+          to
         }
         type
         msgArr {

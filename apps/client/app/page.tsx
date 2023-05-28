@@ -52,8 +52,8 @@ const CHATS_QUERY = gql`
 `;
 
 const SEND_MSG_MUTATION = gql`
-  mutation sendMsg($text: String!, $id: String!, $to: String) {
-    sendMsg(text: $text, id: $id, to: $to) {
+  mutation sendMsg($text: String!, $id: String!, $to: String, $from: String) {
+    sendMsg(text: $text, id: $id, to: $to, from: $from) {
       text
     }
   }
@@ -132,16 +132,16 @@ function Home() {
       },
       variables: { id: userData?.id },
       updateQuery: (prev, { subscriptionData }) => {
-        console.log("subscription hit");
+        // console.log("subscription hit");
         if (!subscriptionData.data) return prev;
 
         const { data: dataObj } = subscriptionData;
         const data = dataObj.chatsSub;
 
-        console.log(data);
+        // console.log(data);
 
         if (data.type === "newChat") {
-          console.log("new chat created");
+          // console.log("new chat created");
           const formattedData = {
             id: data?.id,
             user1: data?.user1,
@@ -154,7 +154,7 @@ function Home() {
             chats: [...prev.chats, formattedData],
           });
         } else if (data.type === "newNotification") {
-          console.log("new notifications 4 u");
+          // console.log("new notifications 4 u");
           const newData = prev.chats.map((_data: any) => {
             if (_data.id === data.notifications.id) {
               return {

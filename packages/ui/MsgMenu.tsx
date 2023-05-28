@@ -1,7 +1,7 @@
 "use client";
 import { Menu, Text } from "@mantine/core";
 import { IconTrash, IconEdit, IconCopy } from "@tabler/icons-react";
-import { forwardRef } from "react";
+import { forwardRef, useMemo } from "react";
 import Linkify from "linkify-react";
 import Highlighter from "react-highlight-words";
 import { useMantineTheme } from "@mantine/core";
@@ -58,6 +58,9 @@ const findChunks = ({
 interface MsgMenuProps {
   text: string;
   id: number;
+  myId?: string;
+  from: string;
+  to: string;
   deleteMsg: ({
     variables: { id, chatId },
   }: {
@@ -79,25 +82,47 @@ interface MsgMenuProps {
 
 export const MsgMenu: React.FC<MsgMenuProps> = forwardRef(
   function MsgMenuWithRef(
-    { text, id, deleteMsg, onTryUpdatingMsg, chatId },
+    { text, id, deleteMsg, onTryUpdatingMsg, chatId, myId, from, to },
     msgRef
   ) {
     const theme = useMantineTheme();
+    const isMsgMine = useMemo(() => {
+      return from === myId;
+    }, [myId, from]);
     return (
       <div
+        className={`${isMsgMine ? "my-msg" : "not-my-msg"}`}
         style={{
           width: "fit-content",
         }}
       >
-        <Menu shadow="md" width={200}>
+        <Menu
+          shadow="md"
+          width={200}
+          positionDependencies={
+            // @ts-ignore
+            [window?.innerHeight]
+          }
+          // styles={{
+          //   item: {
+          //     alignSelf: isMsgMine
+          //       ? "flex-end !important"
+          //       : "flex-start !important",
+          //   },
+          // }}
+        >
           <Menu.Target>
             <Text
               style={{
-                backgroundColor:
-                  theme.colorScheme === "dark" ? theme.colors.dark[7] : "white",
+                backgroundColor: isMsgMine
+                  ? theme.colors.blue[6]
+                  : theme.colorScheme === "dark"
+                  ? theme.colors.dark[7]
+                  : "white",
                 padding: ".5rem",
                 paddingRight: "1rem",
                 paddingLeft: "1rem",
+                color: isMsgMine ? "white" : "auto",
               }}
             >
               <Highlighter
@@ -117,7 +142,13 @@ export const MsgMenu: React.FC<MsgMenuProps> = forwardRef(
             </Text>
           </Menu.Target>
 
-          <Menu.Dropdown>
+          <Menu.Dropdown
+            id="msg-actions"
+            style={{
+              zIndex: "100",
+              overflow: "visible !important",
+            }}
+          >
             {/* <Menu.Label>Application</Menu.Label>
         <Menu.Item icon={<IconSettings size={14} />}>Settings</Menu.Item>
         <Menu.Item icon={<IconMessageCircle size={14} />}>Messages</Menu.Item>

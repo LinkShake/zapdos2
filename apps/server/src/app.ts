@@ -106,10 +106,11 @@ const schema: any = createSchema({
         }
 
         type Mutation {
-            sendMsg(text: String!, id: String, to: String): Message!
+            sendMsg(text: String!, id: String, to: String, from: String): Message!
             deleteMsg(id: Int!, chatId: String!): [Message]
             updateMsg(id: Int!, text: String!, chatId: String!): Message!
             createChat(id: String!, id2: String!): Chat
+            markAsRead(id: String, userId: String): Notification
         }
 
         type Subscription {
@@ -123,6 +124,8 @@ const schema: any = createSchema({
         type Message {
             id: Int!
             text: String!
+            from: String
+            to: String
         }
 
         type PubSubType {
@@ -263,7 +266,7 @@ const schema: any = createSchema({
     Mutation: {
       sendMsg: async (
         _,
-        args: { id: string; text: string; to: string },
+        args: { id: string; text: string; to: string; from: string },
         ctx: GraphQLContext
       ) => {
         // const chat = await prisma.chat.findUnique({
@@ -313,6 +316,8 @@ const schema: any = createSchema({
             data: {
               chatId: args.id,
               text: args.text,
+              from: args.from,
+              to: args.to,
             },
           });
 
@@ -501,6 +506,37 @@ const schema: any = createSchema({
         );
 
         return newChat;
+      },
+      markAsRead: async (
+        _,
+        { id, userId }: { id: string; userId: string },
+        ctx: GraphQLContext
+      ) => {
+        const updatedChat = await prisma.chat.update({
+          where: {
+            id,
+          },
+          data: {
+            notifications: {
+              update: {
+                counter: 0,
+              },
+            },
+          },
+          include: { notifications: true },
+        });
+
+        // ctx.pubSub.publish(`chatsSub_${userId}`, {
+        //   chatsSub: {
+        //     type: "newNotification",
+        //     notifications: {
+        //       id,
+        //       counter: updatedChat.notifications?.counter,
+        //     },
+        //   },
+        // });
+
+        return { counter: 0 };
       },
     },
   },

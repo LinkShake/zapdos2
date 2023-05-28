@@ -1,19 +1,25 @@
 "use client";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { MsgMenu } from "./MsgMenu";
 import { useMessagesContext } from "../../apps/client/hooks/useMessagesContext";
 import { TextInput, Grid, MediaQuery } from "@mantine/core";
 import { useMediaQuery } from "@mantine/hooks";
 import { ChatNavbar } from "./ChatNavbar";
 import { useQuery, gql } from "@apollo/client";
+import { useUser } from "@clerk/clerk-react";
 
 interface ChatProps {
   id: string;
   chatUserId: string;
   sendMsg: ({
-    variables: { text, id, to },
+    variables: { text, id, to, from },
   }: {
-    variables: { text: string; id: string; to: string };
+    variables: {
+      text: string;
+      id: string;
+      to: string;
+      from: string | undefined;
+    };
   }) => void;
   setInputField: React.Dispatch<React.SetStateAction<string>>;
   inputField: string;
@@ -51,11 +57,8 @@ export const Chat: React.FC<ChatProps> = ({
       variables: { id: chatUserId },
     }
   );
-
-  console.log(user);
-
+  const { user: me } = useUser();
   const chatMsgsRef: null | React.RefObject<any> = useRef(null);
-  const match = useMediaQuery("(max-width: 768px)");
   const [userMsgAction, setUserMsgAction] = useState<"sendMsg" | "updateMsg">(
     "sendMsg"
   );
@@ -154,17 +157,30 @@ export const Chat: React.FC<ChatProps> = ({
           display: "flex",
           flexDirection: "column",
           position: "absolute",
+          alignItems: "flex-start",
           width: "100%",
           gap: "10px",
           top: "4.2rem",
           maxHeight: "91.5%",
-          overflowY: "auto",
+          height: "91.5%",
+          // overflowY: "auto",
           padding: "2rem",
           paddingTop: ".5rem",
+          border: "2px solid red",
         }}
       >
         {data?.msgs?.map(
-          ({ text, id: msgId }: { text: string; id: number }) => (
+          ({
+            text,
+            id: msgId,
+            from,
+            to,
+          }: {
+            text: string;
+            id: number;
+            from: string;
+            to: string;
+          }) => (
             <MsgMenu
               key={msgId}
               text={text}
@@ -173,6 +189,9 @@ export const Chat: React.FC<ChatProps> = ({
               updateMsg={updateMsg}
               onTryUpdatingMsg={onTryUpdatingMsg}
               chatId={id}
+              myId={me?.id}
+              from={from}
+              to={to}
               msgRef={chatMsgsRef}
             />
           )
@@ -183,7 +202,12 @@ export const Chat: React.FC<ChatProps> = ({
           e.preventDefault();
           userMsgAction === "sendMsg"
             ? sendMsg({
-                variables: { text: inputField, id: id, to: chatUserId },
+                variables: {
+                  text: inputField,
+                  id: id,
+                  to: chatUserId,
+                  from: me?.id,
+                },
               })
             : updateMsg({
                 variables: { id: currMsgId, chatId: id, text: inputField },
