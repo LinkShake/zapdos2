@@ -1,6 +1,6 @@
 "use client";
 import { IconPlus } from "@tabler/icons-react";
-import { NewChatModalContext } from "../../apps/client/context/NewChatModalContext";
+import { NewChatModalContext } from "context";
 import { useContext } from "react";
 import { Button } from "@mantine/core";
 

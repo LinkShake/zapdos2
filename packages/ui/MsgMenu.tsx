@@ -103,13 +103,6 @@ export const MsgMenu: React.FC<MsgMenuProps> = forwardRef(
             // @ts-ignore
             [window?.innerHeight]
           }
-          // styles={{
-          //   item: {
-          //     alignSelf: isMsgMine
-          //       ? "flex-end !important"
-          //       : "flex-start !important",
-          //   },
-          // }}
         >
           <Menu.Target>
             <Text

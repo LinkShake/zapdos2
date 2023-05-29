@@ -1,6 +1,6 @@
 "use client";
 import { useContext, useEffect, useState } from "react";
-import { NewChatModalContext } from "../../apps/client/context/NewChatModalContext";
+import { NewChatModalContext } from "context";
 import { Flex, Input, TextInput, useMantineTheme } from "@mantine/core";
 import { useQuery, gql } from "@apollo/client";
 import { ChatAvatar } from "./ChatAvatar";

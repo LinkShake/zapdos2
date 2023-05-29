@@ -1,4 +1,4 @@
-import { MessageContext } from "@/context/MessagesContext";
+import { MessageContext } from "../context/MessagesContext";
 import { DocumentNode, QueryResult } from "@apollo/client";
 import { useContext } from "react";
 

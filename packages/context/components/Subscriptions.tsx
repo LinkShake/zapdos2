@@ -1,4 +1,5 @@
-import { useMessages } from "@/hooks/useMessages";
+import React from "react";
+import { useMessages } from "../../hooks/useMessages";
 import { MessageContext } from "../MessagesContext";
 
 export const Subscriptions = ({ children }: { children: React.ReactNode }) => {

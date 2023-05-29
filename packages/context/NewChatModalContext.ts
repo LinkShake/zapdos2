@@ -1,9 +1,10 @@
 import { Dispatch, SetStateAction, createContext } from "react";
 
-interface NewChatModalContextInterface {
+interface INewChatModalContext {
   state: "opened" | "closed";
   setState: Dispatch<SetStateAction<"opened" | "closed">>;
 }
 
-export const NewChatModalContext =
-  createContext<null | NewChatModalContextInterface>(null);
+export const NewChatModalContext = createContext<null | INewChatModalContext>(
+  null
+);

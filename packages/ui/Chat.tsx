@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { MsgMenu } from "./MsgMenu";
-import { useMessagesContext } from "../../apps/client/hooks/useMessagesContext";
+import { useMessagesContext } from "hooks";
 import { TextInput, Grid, MediaQuery } from "@mantine/core";
 import { useMediaQuery } from "@mantine/hooks";
 import { ChatNavbar } from "./ChatNavbar";
