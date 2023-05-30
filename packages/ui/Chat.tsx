@@ -44,6 +44,7 @@ export const Chat: React.FC<ChatProps> = ({
   deleteMsg,
   updateMsg,
 }) => {
+  const matchPaddingChange = useMediaQuery("(max-width: 990px)");
   const { data: user } = useQuery(
     gql`
       query getUser($id: String) {
@@ -166,7 +167,7 @@ export const Chat: React.FC<ChatProps> = ({
           // overflowY: "auto",
           padding: "2rem",
           paddingTop: ".5rem",
-          border: "2px solid red",
+          // border: "2px solid red",
         }}
       >
         {data?.msgs?.map(

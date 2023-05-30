@@ -3,7 +3,7 @@ import { useContext, useEffect, useState } from "react";
 import { NewChatModalContext } from "context";
 import { Flex, Input, TextInput, useMantineTheme } from "@mantine/core";
 import { useQuery, gql } from "@apollo/client";
-import { ChatAvatar } from "./ChatAvatar";
+import { ChatPreview } from "./ChatPreview";
 import { useUser } from "@clerk/clerk-react";
 
 export const NewChatModal = () => {
@@ -80,9 +80,7 @@ export const NewChatModal = () => {
             placeholder="Search for a user..."
             value={searchedUser}
             onChange={(e) => {
-              // @ts-ignore
               setSearchedUser(e.target?.value);
-              // @ts-ignore
               refetch({ searchParams: e.target?.value });
             }}
           />
@@ -90,7 +88,7 @@ export const NewChatModal = () => {
             {data?.users?.map(
               (props: { id: string; username: string; image: string }) => {
                 return (
-                  <ChatAvatar
+                  <ChatPreview
                     key={props.id}
                     variant="userAvatar"
                     chatUser={props}

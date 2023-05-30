@@ -38,3 +38,12 @@
 .msgs-chat-list .not-my-msg {
   align-self: flex-start !important;
 }
+
+.search-btn .change-theme-btn .user-btn {
+  transition: all 0.2s;
+}
+
+.search-btn:hover .change-theme-btn:hover .user-btn:hover {
+  opacity: 0.5;
+  transition: all 0.2s;
+}

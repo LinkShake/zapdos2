@@ -8,7 +8,7 @@ interface User {
   image: string;
 }
 
-interface ChatAvatarProps {
+interface ChatPreviewProps {
   id?: string;
   myId?: string;
   chatUser: User;
@@ -28,7 +28,7 @@ interface ChatAvatarProps {
   variant: "chatAvatar" | "userAvatar";
 }
 
-export const ChatAvatar: React.FC<ChatAvatarProps> = ({
+export const ChatPreview: React.FC<ChatPreviewProps> = ({
   id: chatId,
   chatUser,
   myId,

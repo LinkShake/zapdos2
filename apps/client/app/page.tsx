@@ -16,8 +16,8 @@ import {
 } from "@apollo/client";
 import { link } from "../utils/SSELink";
 import { UserButton, useUser } from "@clerk/nextjs/app-beta/client";
-import { NewChatModalContext } from "@/context/NewChatModalContext";
-import { Subscriptions } from "@/context/components/Subscriptions";
+import { NewChatModalContext } from "context";
+import { Subscriptions } from "context/components/Subscriptions";
 import { useHotkeys, useLocalStorage } from "@mantine/hooks";
 
 const client = new ApolloClient({

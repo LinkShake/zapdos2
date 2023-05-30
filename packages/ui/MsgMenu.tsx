@@ -99,10 +99,7 @@ export const MsgMenu: React.FC<MsgMenuProps> = forwardRef(
         <Menu
           shadow="md"
           width={200}
-          positionDependencies={
-            // @ts-ignore
-            [window?.innerHeight]
-          }
+          positionDependencies={[window?.innerHeight]}
         >
           <Menu.Target>
             <Text
@@ -162,10 +159,7 @@ export const MsgMenu: React.FC<MsgMenuProps> = forwardRef(
             <Menu.Label>Message actions</Menu.Label>
             <Menu.Item
               icon={<IconCopy size={14} />}
-              onClick={() => {
-                // @ts-ignore
-                navigator.clipboard.writeText(text);
-              }}
+              onClick={() => navigator.clipboard.writeText(text)}
             >
               Copy{" "}
             </Menu.Item>

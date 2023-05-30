@@ -1,5 +1,11 @@
 import "./styles.css";
-import React, { Dispatch, SetStateAction, useEffect, useState } from "react";
+import React, {
+  Dispatch,
+  SetStateAction,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import {
   AppShell,
   Navbar,
@@ -13,9 +19,10 @@ import {
 import { useMediaQuery } from "@mantine/hooks";
 import { IconMoonStars, IconSun } from "@tabler/icons-react";
 import { NewChatBtn } from "./NewChatBtn";
-import { ChatAvatar } from "./ChatAvatar";
+import { ChatPreview } from "./ChatPreview";
 import { Chat } from "./Chat";
 import { useMutation, gql } from "@apollo/client";
+import { DashboardNavbar } from "./DashboardNavbar";
 
 interface User {
   id: string;
@@ -111,15 +118,16 @@ export const App: React.FC<AppShellProps> = ({
             colorScheme === "dark"
               ? theme.colors.dark[6]
               : theme.colors.gray[1],
-          margin: 0,
+          margin: "0px !important",
           top: 0,
           right: 0,
           // padding: "auto",
           paddingLeft: matchSm ? (matchLg ? "300px" : "200px") : "0px",
           // paddingLeft: "300px",
-          paddingTop: 0,
-          paddingBottom: 0,
-          paddingRight: 0,
+          paddingTop: "0px !important",
+          paddingBottom: "0px !important",
+          paddingRight: "0px !important",
+          // border: "2px solid yellow",
           // paddingLeft:
         },
       }}
@@ -137,13 +145,14 @@ export const App: React.FC<AppShellProps> = ({
           }}
           width={{ sm: 200, lg: 300 }}
         >
+          <DashboardNavbar />
           {chats?.map((chatMetaData) => {
             const chatUser =
               currUser === chatMetaData.user1.id
                 ? chatMetaData.user2
                 : chatMetaData.user1;
             return (
-              <ChatAvatar
+              <ChatPreview
                 onClick={markAsRead}
                 key={chatMetaData.id}
                 variant="chatAvatar"
