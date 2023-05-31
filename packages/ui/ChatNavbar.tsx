@@ -4,11 +4,17 @@ import { IconArrowLeft } from "@tabler/icons-react";
 interface ChatNavbarProps {
   userName: string;
   profile: string;
+  setChatId: React.Dispatch<React.SetStateAction<string>>;
+  setChat: React.Dispatch<React.SetStateAction<boolean>>;
+  setOpened: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 export const ChatNavbar: React.FC<ChatNavbarProps> = ({
   userName,
   profile,
+  setChatId,
+  setChat,
+  setOpened,
 }) => {
   const theme = useMantineTheme();
   return (
@@ -31,7 +37,11 @@ export const ChatNavbar: React.FC<ChatNavbarProps> = ({
         style={{
           marginLeft: ".5rem",
         }}
-        onClick={() => {}}
+        onClick={() => {
+          setChatId("");
+          setChat(false);
+          setOpened(true);
+        }}
       />
       <Avatar src={profile} alt="user_profile" radius={"xl"} />
       <Title>{userName}</Title>

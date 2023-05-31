@@ -1,33 +1,47 @@
 "use client";
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useMemo, useState } from "react";
 import { NewChatModalContext } from "context";
 import { Flex, Input, TextInput, useMantineTheme } from "@mantine/core";
 import { useQuery, gql } from "@apollo/client";
 import { ChatPreview } from "./ChatPreview";
 import { useUser } from "@clerk/clerk-react";
 
+interface User {
+  id: string;
+  username: string;
+  image: string;
+  // profileImageUrl: string;
+}
+
 export const NewChatModal = () => {
   const { user } = useUser();
   const ctx = useContext(NewChatModalContext);
   const theme = useMantineTheme();
   const [searchedUser, setSearchedUser] = useState<string>("");
-  const { data, error, refetch } = useQuery(
+  const { data, error } = useQuery(
     gql`
-      query Users($searchParams: String) {
-        users(searchParams: $searchParams) {
-          id
-          username
-          image
-        }
+      query users {
+        id
+        username
+        image
       }
     `,
     {
-      variables: { searchParams: searchedUser },
       onError(error) {
         console.log(error.message);
       },
     }
   );
+  const [usersArr, setUsersArr] = useState<User[]>(data?.users);
+  const updateUsersArr = useMemo(() => {
+    return searchedUser
+      ? usersArr?.filter(
+          ({ username }) =>
+            username?.toLowerCase().includes(searchedUser) ||
+            username?.toUpperCase().includes(searchedUser)
+        )
+      : data?.users;
+  }, [usersArr, searchedUser, data?.users]);
 
   useEffect(() => {
     const onEscapeKey = (e: React.KeyboardEvent<HTMLDivElement>) => {
@@ -39,6 +53,10 @@ export const NewChatModal = () => {
     // @ts-ignore
     return () => window?.removeEventListener("keydown", onEscapeKey);
   });
+
+  useEffect(() => {
+    setUsersArr(data?.users);
+  }, [data?.users]);
 
   if (error) {
     return <div>{error.message}</div>;
@@ -81,11 +99,12 @@ export const NewChatModal = () => {
             value={searchedUser}
             onChange={(e) => {
               setSearchedUser(e.target?.value);
-              refetch({ searchParams: e.target?.value });
+              setUsersArr(updateUsersArr());
+              // refetch({ searchParams: e.target?.value });
             }}
           />
           <div>
-            {data?.users?.map(
+            {usersArr?.map(
               (props: { id: string; username: string; image: string }) => {
                 return (
                   <ChatPreview

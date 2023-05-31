@@ -101,7 +101,7 @@ const schema: any = createSchema({
             hello: String,
             msgs(id: String): [Message],
             chats(id: String, params: String): [Chat],
-            users(searchParams: String): [User]
+            users: [User]
             getUser(id: String): User
         }
 
@@ -187,36 +187,15 @@ const schema: any = createSchema({
 
         return msgs;
       },
-      users: async (_, { searchParams }) => {
+      users: async () => {
         const matchUsers = await clerkClient.users.getUserList();
 
-        console.log(matchUsers);
-
-        if (!searchParams) {
-          return matchUsers.map((user) => {
-            return {
-              ...user,
-              image: user.profileImageUrl,
-            };
-          });
-        }
-
-        const returnUsers = matchUsers
-          .filter(
-            ({ username }) =>
-              username?.toLowerCase().slice(0, 4).includes(searchParams) ||
-              username?.toUpperCase().slice(0, 4).includes(searchParams)
-          )
-          .map(({ id, username, profileImageUrl }) => {
-            console.log(profileImageUrl);
-            return {
-              id,
-              username,
-              image: profileImageUrl,
-            };
-          });
-
-        return returnUsers;
+        return matchUsers.map((user) => {
+          return {
+            ...user,
+            image: user.profileImageUrl,
+          };
+        });
       },
       chats: async (_, { id, params }: { id: string; params: string }) => {
         const chats = await prisma.chat.findMany({

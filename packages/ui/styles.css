@@ -47,3 +47,12 @@
   opacity: 0.5;
   transition: all 0.2s;
 }
+
+.send-msg-btn {
+  transition: all 0.2s;
+}
+
+.send-msg-btn:hover {
+  transition: all 0.2s;
+  opacity: 0.75;
+}

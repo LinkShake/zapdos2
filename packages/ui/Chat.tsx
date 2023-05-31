@@ -2,7 +2,7 @@
 import { useEffect, useRef, useState } from "react";
 import { MsgMenu } from "./MsgMenu";
 import { useMessagesContext } from "hooks";
-import { Button, Grid, Textarea } from "@mantine/core";
+import { Grid, Textarea } from "@mantine/core";
 import { useMediaQuery } from "@mantine/hooks";
 import { ChatNavbar } from "./ChatNavbar";
 import { useQuery, gql } from "@apollo/client";
@@ -34,6 +34,9 @@ interface ChatProps {
   }: {
     variables: { id: number; chatId: string; text: string };
   }) => void;
+  setChatId: React.Dispatch<React.SetStateAction<string>>;
+  setChat: React.Dispatch<React.SetStateAction<boolean>>;
+  setOpened: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 export const Chat: React.FC<ChatProps> = ({
@@ -44,8 +47,11 @@ export const Chat: React.FC<ChatProps> = ({
   inputField,
   deleteMsg,
   updateMsg,
+  setChatId,
+  setChat,
+  setOpened,
 }) => {
-  const matchPaddingChange = useMediaQuery("(max-width: 990px)");
+  // const matchPaddingChange = useMediaQuery("(max-width: 990px)");
   const { data: user } = useQuery(
     gql`
       query getUser($id: String) {
@@ -82,6 +88,23 @@ export const Chat: React.FC<ChatProps> = ({
     setInputField(msgBody);
     setCurrMsgId(msgId);
     inputRef?.current?.focus();
+  };
+
+  const onSubmit = () => {
+    userMsgAction === "sendMsg"
+      ? sendMsg({
+          variables: {
+            text: inputField,
+            id: id,
+            to: chatUserId,
+            from: me?.id,
+          },
+        })
+      : updateMsg({
+          variables: { id: currMsgId, chatId: id, text: inputField },
+        });
+    setInputField("");
+    setUserMsgAction("sendMsg");
   };
 
   useEffect(() => {
@@ -152,6 +175,9 @@ export const Chat: React.FC<ChatProps> = ({
       <ChatNavbar
         profile={user?.getUser?.image}
         userName={user?.getUser?.username}
+        setChatId={setChatId}
+        setChat={setChat}
+        setOpened={setOpened}
       />
       <ul
         className="msgs-chat-list"
@@ -270,23 +296,24 @@ export const Chat: React.FC<ChatProps> = ({
           minRows={1}
           required
           disabled={loading}
-          rightSection={<SendMsgBtn />}
+          rightSection={<SendMsgBtn onSubmit={onSubmit} />}
         />
       </form>
     </Grid>
   );
 };
 
-const SendMsgBtn = () => {
+const SendMsgBtn = ({ onSubmit }: { onSubmit: () => void }) => {
   return (
-    <Button
+    <IconSend
+      className="send-msg-btn"
+      size={20}
       type="submit"
+      role="button"
+      onClick={onSubmit}
       style={{
-        margin: "0",
-        // padding: "0",
+        cursor: "pointer",
       }}
-    >
-      <IconSend size={20} />;
-    </Button>
+    />
   );
 };

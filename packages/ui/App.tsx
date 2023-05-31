@@ -103,11 +103,11 @@ export const App: React.FC<AppShellProps> = ({
     variables: { id: chatId, userId: currUser },
   });
   // const [computedLeftP, setComputedLeftP] = useState<string>("300px");
-  const createComputedLeftP = () => {
-    if (matchSm) return "200px";
-    if (matchLg) return "300px";
-    else return "0px";
-  };
+  // const createComputedLeftP = () => {
+  //   if (matchSm) return "200px";
+  //   if (matchLg) return "300px";
+  //   else return "0px";
+  // };
 
   return (
     <AppShell
@@ -256,6 +256,9 @@ export const App: React.FC<AppShellProps> = ({
           inputField={inputField}
           deleteMsg={deleteMsg}
           updateMsg={updateMsg}
+          setChatId={setChatId}
+          setChat={setChat}
+          setOpened={setOpened}
         />
       )}
     </AppShell>
