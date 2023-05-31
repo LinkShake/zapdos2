@@ -18,6 +18,7 @@ import { link } from "../utils/SSELink";
 import { UserButton, useUser } from "@clerk/nextjs/app-beta/client";
 import { NewChatModalContext } from "context";
 import { Subscriptions } from "context/components/Subscriptions";
+import { ChatsParams, ChatsRefetchCxt } from "context";
 import { useHotkeys, useLocalStorage } from "@mantine/hooks";
 
 const client = new ApolloClient({
@@ -26,8 +27,8 @@ const client = new ApolloClient({
 });
 
 const CHATS_QUERY = gql`
-  query Chats($id: String) {
-    chats(id: $id) {
+  query Chats($id: String, $params: String) {
+    chats(id: $id, params: $params) {
       id
       user1 {
         id
@@ -107,6 +108,7 @@ function Home() {
     defaultValue: "dark",
     getInitialValueInEffect: true,
   });
+  const [chatsParams, setChatsParams] = useState<string>("");
   const toggleColorScheme = (value?: ColorScheme) =>
     setColorScheme(value || (colorScheme === "dark" ? "light" : "dark"));
   useHotkeys([["mod+J", () => toggleColorScheme()]]);
@@ -114,8 +116,12 @@ function Home() {
     "opened" | "closed"
   >("closed");
   const { user: userData } = useUser();
-  const { data: chats, subscribeToMore } = useQuery(CHATS_QUERY, {
-    variables: { id: userData?.id },
+  const {
+    data: chats,
+    subscribeToMore,
+    refetch,
+  } = useQuery(CHATS_QUERY, {
+    variables: { id: userData?.id, params: chatsParams },
     onError(error) {
       console.log(error.message);
     },
@@ -178,61 +184,67 @@ function Home() {
   return (
     <main>
       <Subscriptions>
-        <NewChatModalContext.Provider
+        <ChatsRefetchCxt.Provider
           value={{
-            state: newChatModalState,
-            setState: setNewChatModalState,
+            refetch,
           }}
         >
-          <ColorSchemeProvider
-            colorScheme={colorScheme}
-            toggleColorScheme={toggleColorScheme}
+          <NewChatModalContext.Provider
+            value={{
+              state: newChatModalState,
+              setState: setNewChatModalState,
+            }}
           >
-            <MantineProvider
-              theme={{
-                colorScheme,
-                fontFamily: "Roboto, sans-serif",
-                components: {
-                  InputWrapper: {
-                    styles: (theme) => ({
-                      label: {
-                        backgroundColor:
-                          theme.colorScheme === "dark"
-                            ? theme.colors.dark[8]
-                            : "white",
-                      },
-                    }),
-                  },
-                  Input: {
-                    styles: (theme) => ({
-                      input: {
-                        backgroundColor:
-                          theme.colorScheme === "dark"
-                            ? theme.colors.dark[7]
-                            : "white",
-                        borderRadius: "none",
-                      },
-                    }),
-                  },
-                },
-              }}
-              withGlobalStyles
-              withNormalizeCSS
+            <ColorSchemeProvider
+              colorScheme={colorScheme}
+              toggleColorScheme={toggleColorScheme}
             >
-              <App
-                currUser={userData?.id || ""}
-                setTheme={setColorScheme}
-                themeState={colorScheme}
-                sendMsg={sendMsg}
-                UserProfile={<UserButton />}
-                chats={chats?.chats}
-                deleteMsg={deleteMsg}
-                updateMsg={updateMsg}
-              />
-              {newChatModalState === "opened" && <NewChatModal />}
-            </MantineProvider>
-          </ColorSchemeProvider>
-        </NewChatModalContext.Provider>
+              <MantineProvider
+                theme={{
+                  colorScheme,
+                  fontFamily: "Roboto, sans-serif",
+                  components: {
+                    InputWrapper: {
+                      styles: (theme) => ({
+                        label: {
+                          backgroundColor:
+                            theme.colorScheme === "dark"
+                              ? theme.colors.dark[8]
+                              : "white",
+                        },
+                      }),
+                    },
+                    Input: {
+                      styles: (theme) => ({
+                        input: {
+                          backgroundColor:
+                            theme.colorScheme === "dark"
+                              ? theme.colors.dark[7]
+                              : "white",
+                          borderRadius: "none",
+                        },
+                      }),
+                    },
+                  },
+                }}
+                withGlobalStyles
+                withNormalizeCSS
+              >
+                <App
+                  currUser={userData?.id || ""}
+                  setTheme={setColorScheme}
+                  themeState={colorScheme}
+                  sendMsg={sendMsg}
+                  UserProfile={<UserButton />}
+                  chats={chats?.chats}
+                  deleteMsg={deleteMsg}
+                  updateMsg={updateMsg}
+                />
+                {newChatModalState === "opened" && <NewChatModal />}
+              </MantineProvider>
+            </ColorSchemeProvider>
+          </NewChatModalContext.Provider>
+        </ChatsRefetchCxt.Provider>
       </Subscriptions>
     </main>
   );

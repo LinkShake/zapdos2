@@ -1,4 +1,4 @@
-import { UserButton } from "@clerk/clerk-react";
+import { UserButton, useUser } from "@clerk/clerk-react";
 import {
   IconSearch,
   IconSun,
@@ -6,13 +6,17 @@ import {
   IconArrowLeft,
 } from "@tabler/icons-react";
 import { useMantineColorScheme, ActionIcon, TextInput } from "@mantine/core";
-import { useEffect, useRef, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
+import { ChatsRefetchCxt } from "context";
 
 export const DashboardNavbar = () => {
   const { colorScheme, toggleColorScheme } = useMantineColorScheme();
   const [navbarState, setNavbarState] = useState<"ui" | "search">("ui");
   const searchBarRef: null | React.RefObject<any> = useRef(null);
   const [inputField, setInputField] = useState<string>("");
+  const ctx = useContext(ChatsRefetchCxt);
+  const { user } = useUser();
+  const id = user?.id as string;
 
   useEffect(() => {
     if (navbarState === "search") searchBarRef.current.focus();
@@ -92,7 +96,10 @@ export const DashboardNavbar = () => {
             ref={searchBarRef}
             placeholder="Search for a chat..."
             value={inputField}
-            onChange={(e) => setInputField(e.target.value)}
+            onChange={(e) => {
+              setInputField(e.target.value);
+              ctx?.refetch({ id, params: e.target.value });
+            }}
           />
         </>
       )}

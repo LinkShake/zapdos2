@@ -100,7 +100,7 @@ const schema: any = createSchema({
         type Query {
             hello: String,
             msgs(id: String): [Message],
-            chats(id: String): [Chat],
+            chats(id: String, params: String): [Chat],
             users(searchParams: String): [User]
             getUser(id: String): User
         }
@@ -218,7 +218,7 @@ const schema: any = createSchema({
 
         return returnUsers;
       },
-      chats: async (_, { id }: { id: string }) => {
+      chats: async (_, { id, params }: { id: string; params: string }) => {
         const chats = await prisma.chat.findMany({
           where: {
             OR: [
@@ -238,7 +238,13 @@ const schema: any = createSchema({
 
         const actualChats = await addUserDataToChats(chats, id);
 
-        return [...actualChats];
+        if (!params) return [...actualChats];
+        else
+          return actualChats.filter(({ user1, user2 }) =>
+            id === user1.id
+              ? user2.username.includes(params)
+              : user1.username.includes(params)
+          );
       },
     },
     Subscription: {

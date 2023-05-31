@@ -1,12 +1,13 @@
 "use client";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { MsgMenu } from "./MsgMenu";
 import { useMessagesContext } from "hooks";
-import { TextInput, Grid, MediaQuery } from "@mantine/core";
+import { Button, Grid, Textarea } from "@mantine/core";
 import { useMediaQuery } from "@mantine/hooks";
 import { ChatNavbar } from "./ChatNavbar";
 import { useQuery, gql } from "@apollo/client";
 import { useUser } from "@clerk/clerk-react";
+import { IconSend } from "@tabler/icons-react";
 
 interface ChatProps {
   id: string;
@@ -67,9 +68,10 @@ export const Chat: React.FC<ChatProps> = ({
   const [currMsgId, setCurrMsgId] = useState<number>(0);
 
   // @ts-expect-error
-  const [{ data, error, subscribeToMore }, subscription] = useMessagesContext({
-    id,
-  });
+  const [{ data, error, subscribeToMore, loading }, subscription] =
+    useMessagesContext({
+      id,
+    });
 
   const onTryUpdatingMsg = (
     actionType: "sendMsg" | "updateMsg",
@@ -219,6 +221,7 @@ export const Chat: React.FC<ChatProps> = ({
         style={{
           float: "right",
           display: "flex",
+          flexDirection: "column",
           flexWrap: "wrap",
           position: "absolute",
           height: "2.5rem",
@@ -231,13 +234,14 @@ export const Chat: React.FC<ChatProps> = ({
           marginTop: "2px",
         }}
       >
-        <TextInput
+        {/* <TextInput
           ref={inputRef}
           type="text"
           style={{
             width: "100%",
             height: "2.5rem",
             marginTop: "2px",
+            // resize: "vertical",
           }}
           placeholder="Type something..."
           value={inputField}
@@ -247,8 +251,42 @@ export const Chat: React.FC<ChatProps> = ({
             // @ts-ignore
             setInputField(evt?.value);
           }}
+        /> */}
+        <Textarea
+          ref={inputRef}
+          // label="msg-textarea"
+          style={{
+            width: "100%",
+            // border: "2px solid red",
+            height: "2.5rem",
+            marginTop: "2px",
+            bottom: "0",
+            maxWidth: "none",
+            resize: "vertical",
+          }}
+          placeholder="Type something..."
+          value={inputField}
+          onChange={(e) => setInputField(e.target?.value)}
+          minRows={1}
+          required
+          disabled={loading}
+          rightSection={<SendMsgBtn />}
         />
       </form>
     </Grid>
+  );
+};
+
+const SendMsgBtn = () => {
+  return (
+    <Button
+      type="submit"
+      style={{
+        margin: "0",
+        // padding: "0",
+      }}
+    >
+      <IconSend size={20} />;
+    </Button>
   );
 };
