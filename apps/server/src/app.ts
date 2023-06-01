@@ -328,9 +328,9 @@ const schema: any = createSchema({
                   counter: 1,
                 },
                 update: {
-                  counter:
-                    chat?.notifications?.counter &&
-                    chat.notifications.counter + 1,
+                  counter: chat?.notifications?.counter
+                    ? chat.notifications.counter + 1
+                    : 1,
                 },
               },
               lastUpdate: new Date(),
@@ -501,29 +501,25 @@ const schema: any = createSchema({
         { id, userId }: { id: string; userId: string },
         ctx: GraphQLContext
       ) => {
-        const updatedChat = await prisma.chat.update({
+        console.log(id);
+        const updatedNotifications = await prisma.notification.update({
           where: {
-            id,
+            chatId: id,
           },
           data: {
-            notifications: {
-              update: {
-                counter: 0,
-              },
-            },
+            counter: 0,
           },
-          include: { notifications: true },
         });
 
-        // ctx.pubSub.publish(`chatsSub_${userId}`, {
-        //   chatsSub: {
-        //     type: "newNotification",
-        //     notifications: {
-        //       id,
-        //       counter: updatedChat.notifications?.counter,
-        //     },
-        //   },
-        // });
+        ctx.pubSub.publish(`chatsSub_${userId}`, {
+          chatsSub: {
+            type: "newNotification",
+            notifications: {
+              id,
+              counter: updatedNotifications.counter,
+            },
+          },
+        });
 
         return { counter: 0 };
       },

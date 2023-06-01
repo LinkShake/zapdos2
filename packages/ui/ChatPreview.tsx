@@ -50,14 +50,14 @@ export const ChatPreview: React.FC<ChatPreviewProps> = ({
       }
     `
   );
+
   return (
     <Navbar.Section
       className="chat-avatar"
       onClick={() => {
         if (variant === "chatAvatar") {
-          // if (chatId && myId) {
           // @ts-ignore
-          // onClick?.({ variables: { id: chatId, userId: myId } });
+          onClick?.({ variables: { id: chatId, userId: myId } });
           setChatUserId?.(chatUser.id);
           // @ts-ignore
           setChatId?.(chatId);
@@ -68,7 +68,6 @@ export const ChatPreview: React.FC<ChatPreviewProps> = ({
           // }
         } else if (variant === "userAvatar") {
           createChat({ variables: { id: myId, id2: chatUser.id } });
-          // router.refresh();
         }
       }}
       style={{
@@ -96,7 +95,7 @@ export const ChatPreview: React.FC<ChatPreviewProps> = ({
         />
         <Title order={4}>{chatUser.username}</Title>
       </div>
-      {notifications?.counter && (
+      {notifications?.counter ? (
         <Button
           color="blue"
           style={{
@@ -109,6 +108,8 @@ export const ChatPreview: React.FC<ChatPreviewProps> = ({
         >
           {notifications?.counter}
         </Button>
+      ) : (
+        <></>
       )}
     </Navbar.Section>
   );
