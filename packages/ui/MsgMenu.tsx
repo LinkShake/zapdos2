@@ -94,6 +94,8 @@ export const MsgMenu: React.FC<MsgMenuProps> = forwardRef(
         className={`${isMsgMine ? "my-msg" : "not-my-msg"}`}
         style={{
           width: "fit-content",
+          overflow: "hidden !important",
+          height: "auto !important",
         }}
       >
         <Menu
@@ -103,6 +105,7 @@ export const MsgMenu: React.FC<MsgMenuProps> = forwardRef(
         >
           <Menu.Target>
             <Text
+              className="msg"
               style={{
                 backgroundColor: isMsgMine
                   ? theme.colors.blue[6]
@@ -113,7 +116,15 @@ export const MsgMenu: React.FC<MsgMenuProps> = forwardRef(
                 paddingRight: "1rem",
                 paddingLeft: "1rem",
                 color: isMsgMine ? "white" : "auto",
+                maxWidth: "30rem",
+                // height: "auto",
+                // minHeight: "fit-content",
+                border: "2px solid red",
+                overflow: "hidden !important",
+                overflowY: "auto",
+                height: "auto !important",
               }}
+              lineClamp={18}
             >
               <Highlighter
                 highlightClassName="YourHighlightClass"
@@ -123,7 +134,16 @@ export const MsgMenu: React.FC<MsgMenuProps> = forwardRef(
                 findChunks={findChunks}
                 highlightTag={({ children, highlightIndex }) => (
                   <Linkify>
-                    <span style={{ color: "#67e8f9" }}>{children}</span>
+                    <div
+                      style={{
+                        color: "#67e8f9",
+                        overflow: "hidden !important",
+                        height: "auto !important",
+                        border: "2px solid yellow",
+                      }}
+                    >
+                      {children}
+                    </div>
                   </Linkify>
                 )}
               />
