@@ -213,6 +213,9 @@ const schema: any = createSchema({
             messages: true,
             notifications: true,
           },
+          orderBy: {
+            lastUpdate: "asc",
+          },
         });
 
         const actualChats = await addUserDataToChats(chats, id);
@@ -330,6 +333,7 @@ const schema: any = createSchema({
                     chat.notifications.counter + 1,
                 },
               },
+              lastUpdate: new Date(),
             },
             include: {
               notifications: true,

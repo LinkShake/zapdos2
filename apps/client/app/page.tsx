@@ -157,23 +157,26 @@ function Home() {
           };
 
           return Object.assign({}, prev, {
-            chats: [...prev.chats, formattedData],
+            chats: [formattedData, ...prev.chats],
           });
         } else if (data.type === "newNotification") {
           // console.log("new notifications 4 u");
-          const newData = prev.chats.map((_data: any) => {
-            if (_data.id === data.notifications.id) {
+          const newData = prev.chats
+            .filter((_data: any) => _data.id === data.notifications.id)
+            .map((_data: any) => {
               return {
                 ..._data,
                 notifications: data.notifications,
               };
-            }
-
-            return _data;
-          });
+            });
 
           return Object.assign({}, prev, {
-            chats: [...newData],
+            chats: [
+              ...newData,
+              ...prev.chats.filter(
+                (_data: any) => _data.id !== data.notifications.id
+              ),
+            ],
           });
         }
       },
