@@ -214,7 +214,7 @@ const schema: any = createSchema({
             notifications: true,
           },
           orderBy: {
-            lastUpdate: "asc",
+            lastUpdate: "desc",
           },
         });
 
