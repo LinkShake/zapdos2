@@ -79,6 +79,8 @@ export const Chat: React.FC<ChatProps> = ({
       id,
     });
 
+  const match = useMediaQuery("(max-width: 768px)");
+
   const onTryUpdatingMsg = (
     actionType: "sendMsg" | "updateMsg",
     msgBody: string,
@@ -166,11 +168,12 @@ export const Chat: React.FC<ChatProps> = ({
         width: "100%",
         //maxHeight: "90vh",
         height: "100vh",
-        //overflowY: "auto",
+        // overflowY: "auto",
         gridTemplateRows: "10fr 80fr 10fr",
         scrollbarWidth: "none",
         position: "relative",
-        overflowY: "hidden",
+        overflowY: "auto",
+        // border: "2px solid yellow",
       }}
     >
       <ChatNavbar
@@ -191,12 +194,13 @@ export const Chat: React.FC<ChatProps> = ({
           width: "100%",
           gap: "10px",
           top: "4.2rem",
-          maxHeight: "91.5%",
-          height: "91.5%",
-          // overflowY: "auto",
+          maxHeight: "1200px",
+          // height: "auto",
+          overflowY: "auto",
           padding: "2rem",
           paddingTop: ".5rem",
-          // border: "2px solid red",
+          border: "2px solid red",
+          // zIndex: "100",
         }}
       >
         {data?.msgs?.map(
@@ -246,11 +250,11 @@ export const Chat: React.FC<ChatProps> = ({
           setUserMsgAction("sendMsg");
         }}
         style={{
-          float: "right",
+          // float: "right",
           display: "flex",
           flexDirection: "column",
           flexWrap: "wrap",
-          position: "absolute",
+          position: match ? "fixed" : "absolute",
           height: "2.5rem",
           bottom: 0,
           width: "100%",

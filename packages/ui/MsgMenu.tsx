@@ -5,6 +5,7 @@ import { forwardRef, useMemo } from "react";
 import Linkify from "linkify-react";
 import Highlighter from "react-highlight-words";
 import { useMantineTheme } from "@mantine/core";
+import { useMediaQuery } from "@mantine/hooks";
 
 const findChunks = ({
   // @ts-ignore
@@ -86,6 +87,10 @@ export const MsgMenu: React.FC<MsgMenuProps> = forwardRef(
     msgRef
   ) {
     const theme = useMantineTheme();
+    const matchFirstBreak = useMediaQuery("(max-width: 945px)");
+    const matchSecondBreak = useMediaQuery("(max-width: 840px)");
+    const matchThirdBreak = useMediaQuery("(max-width: 768px)");
+    const matchFinalBreak = useMediaQuery("(max-width: 665px)");
     const isMsgMine = useMemo(() => {
       return from === myId;
     }, [myId, from]);
@@ -116,7 +121,15 @@ export const MsgMenu: React.FC<MsgMenuProps> = forwardRef(
                 paddingRight: "1rem",
                 paddingLeft: "1rem",
                 color: isMsgMine ? "white" : "auto",
-                maxWidth: "30rem",
+                maxWidth: matchFirstBreak
+                  ? matchSecondBreak
+                    ? matchThirdBreak
+                      ? matchFinalBreak
+                        ? "200px"
+                        : "25rem"
+                      : "20rem"
+                    : "25rem"
+                  : "30rem",
                 // height: "auto",
                 // minHeight: "fit-content",
                 overflow: "hidden !important",
