@@ -119,7 +119,6 @@ export const MsgMenu: React.FC<MsgMenuProps> = forwardRef(
                 maxWidth: "30rem",
                 // height: "auto",
                 // minHeight: "fit-content",
-                border: "2px solid red",
                 overflow: "hidden !important",
                 overflowY: "auto",
                 height: "auto !important",

@@ -97,6 +97,9 @@ export const DashboardNavbar = () => {
           />
           <TextInput
             ref={searchBarRef}
+            style={{
+              width: "85%",
+            }}
             placeholder="Search for a chat..."
             value={inputField}
             onChange={(e) => {
