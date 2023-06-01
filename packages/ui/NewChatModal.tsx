@@ -2,6 +2,7 @@
 import { useContext, useEffect, useMemo, useState } from "react";
 import { NewChatModalContext } from "context";
 import { Flex, Input, TextInput, useMantineTheme } from "@mantine/core";
+import { useMediaQuery } from "@mantine/hooks";
 import { useQuery, gql } from "@apollo/client";
 import { ChatPreview } from "./ChatPreview";
 import { useUser } from "@clerk/clerk-react";
@@ -14,16 +15,19 @@ interface User {
 }
 
 export const NewChatModal = () => {
+  const match = useMediaQuery("(max-width: 1400px)");
   const { user } = useUser();
   const ctx = useContext(NewChatModalContext);
   const theme = useMantineTheme();
   const [searchedUser, setSearchedUser] = useState<string>("");
   const { data, error } = useQuery(
     gql`
-      query users {
-        id
-        username
-        image
+      query {
+        users {
+          id
+          username
+          image
+        }
       }
     `,
     {
@@ -33,7 +37,8 @@ export const NewChatModal = () => {
     }
   );
   const [usersArr, setUsersArr] = useState<User[]>(data?.users);
-  const updateUsersArr = useMemo(() => {
+  const updatedUsersArr = useMemo(() => {
+    console.log(searchedUser);
     return searchedUser
       ? usersArr?.filter(
           ({ username }) =>
@@ -82,11 +87,12 @@ export const NewChatModal = () => {
       <div
         className="new-chat-component"
         style={{
-          width: "50vw",
-          height: "50vh",
+          width: "20rem",
+          height: "40rem",
           position: "absolute",
-          left: "30%",
-          top: "15%",
+          left: "50%",
+          top: "50%",
+          transform: "translate(-50%, -50%)",
           backgroundColor:
             theme.colorScheme === "dark" ? theme.colors.dark[8] : "white",
           borderRadius: ".75rem",
@@ -99,11 +105,19 @@ export const NewChatModal = () => {
             value={searchedUser}
             onChange={(e) => {
               setSearchedUser(e.target?.value);
-              setUsersArr(updateUsersArr());
+              setUsersArr(updatedUsersArr);
               // refetch({ searchParams: e.target?.value });
             }}
+            style={{
+              marginTop: "1rem",
+            }}
           />
-          <div>
+          <ul
+            style={{
+              maxHeight: "15rem",
+              overflowY: "auto",
+            }}
+          >
             {usersArr?.map(
               (props: { id: string; username: string; image: string }) => {
                 return (
@@ -116,7 +130,7 @@ export const NewChatModal = () => {
                 );
               }
             )}
-          </div>
+          </ul>
         </Flex>
       </div>
     </>

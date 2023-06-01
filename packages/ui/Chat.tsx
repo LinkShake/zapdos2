@@ -170,6 +170,7 @@ export const Chat: React.FC<ChatProps> = ({
         gridTemplateRows: "10fr 80fr 10fr",
         scrollbarWidth: "none",
         position: "relative",
+        overflowY: "hidden",
       }}
     >
       <ChatNavbar
