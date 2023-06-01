@@ -7,7 +7,7 @@ import { Button } from "@mantine/core";
 export const NewChatBtn = () => {
   const ctx = useContext(NewChatModalContext);
   return (
-    <Button onClick={() => ctx?.setState("opened")} className="new-chat-btn">
+    <Button onClick={() => ctx?.setState("opened")} id="new-chat-btn">
       <IconPlus size={25} />
     </Button>
   );

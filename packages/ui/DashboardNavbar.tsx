@@ -77,7 +77,7 @@ export const DashboardNavbar = () => {
                 />
               )}
             </ActionIcon>
-            <div className="user-btn">
+            <div id="user-btn">
               <UserButton />
             </div>
           </div>
@@ -90,7 +90,10 @@ export const DashboardNavbar = () => {
             style={{
               cursor: "pointer",
             }}
-            onClick={() => setNavbarState("ui")}
+            onClick={() => {
+              setNavbarState("ui");
+              ctx?.refetch({ id, params: "" });
+            }}
           />
           <TextInput
             ref={searchBarRef}

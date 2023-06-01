@@ -118,6 +118,7 @@ function Home() {
   const { user: userData } = useUser();
   const {
     data: chats,
+    loading,
     subscribeToMore,
     refetch,
   } = useQuery(CHATS_QUERY, {
@@ -242,6 +243,7 @@ function Home() {
                   chats={chats?.chats}
                   deleteMsg={deleteMsg}
                   updateMsg={updateMsg}
+                  isDataLoading={loading}
                 />
                 {newChatModalState === "opened" && <NewChatModal />}
               </MantineProvider>

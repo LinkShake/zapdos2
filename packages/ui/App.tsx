@@ -1,28 +1,20 @@
 import "./styles.css";
-import React, {
-  Dispatch,
-  SetStateAction,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
+import React, { Dispatch, SetStateAction, useState } from "react";
 import {
   AppShell,
   Navbar,
-  Header,
-  MediaQuery,
-  Burger,
-  ActionIcon,
+  Text,
   useMantineColorScheme,
   useMantineTheme,
 } from "@mantine/core";
 import { useMediaQuery } from "@mantine/hooks";
-import { IconMoonStars, IconSun } from "@tabler/icons-react";
+// import { IconMoonStars, IconSun } from "@tabler/icons-react";
 import { NewChatBtn } from "./NewChatBtn";
 import { ChatPreview } from "./ChatPreview";
 import { Chat } from "./Chat";
 import { useMutation, gql } from "@apollo/client";
 import { DashboardNavbar } from "./DashboardNavbar";
+import { ChatsLoading } from "./loading/ChatsLoading";
 
 interface User {
   id: string;
@@ -68,8 +60,7 @@ interface AppShellProps {
   }: {
     variables: { id: number; chatId: string; text: string };
   }) => void;
-  // chatId: string;
-  // setChatId: React.Dispatch<React.SetStateAction<string>>;
+  isDataLoading: boolean;
 }
 
 const markAsReadGql = gql`
@@ -89,6 +80,7 @@ export const App: React.FC<AppShellProps> = ({
   chats,
   deleteMsg,
   updateMsg,
+  isDataLoading,
 }) => {
   const theme = useMantineTheme();
   const matchSm = useMediaQuery("(min-width: 48em)");
@@ -102,12 +94,8 @@ export const App: React.FC<AppShellProps> = ({
   const [markAsRead] = useMutation(markAsReadGql, {
     variables: { id: chatId, userId: currUser },
   });
-  // const [computedLeftP, setComputedLeftP] = useState<string>("300px");
-  // const createComputedLeftP = () => {
-  //   if (matchSm) return "200px";
-  //   if (matchLg) return "300px";
-  //   else return "0px";
-  // };
+
+  console.log(isDataLoading);
 
   return (
     <AppShell
@@ -146,25 +134,49 @@ export const App: React.FC<AppShellProps> = ({
           width={{ sm: 200, lg: 300 }}
         >
           <DashboardNavbar />
-          {chats?.map((chatMetaData) => {
-            const chatUser =
-              currUser === chatMetaData.user1.id
-                ? chatMetaData.user2
-                : chatMetaData.user1;
-            return (
-              <ChatPreview
-                onClick={markAsRead}
-                key={chatMetaData.id}
-                variant="chatAvatar"
-                chatUser={chatUser}
-                setChat={setChat}
-                setOpened={setOpened}
-                setChatId={setChatId}
-                setChatUserId={setChatUserId}
-                {...chatMetaData}
-              />
-            );
-          })}
+          {isDataLoading ? (
+            <>
+              <ChatsLoading />
+              <ChatsLoading />
+              <ChatsLoading />
+              <ChatsLoading />
+              <ChatsLoading />
+              <ChatsLoading />
+              <ChatsLoading />
+              <ChatsLoading />
+            </>
+          ) : chats?.length ? (
+            chats?.map((chatMetaData) => {
+              const chatUser =
+                currUser === chatMetaData.user1.id
+                  ? chatMetaData.user2
+                  : chatMetaData.user1;
+              return (
+                <ChatPreview
+                  onClick={markAsRead}
+                  key={chatMetaData.id}
+                  variant="chatAvatar"
+                  chatUser={chatUser}
+                  setChat={setChat}
+                  setOpened={setOpened}
+                  setChatId={setChatId}
+                  setChatUserId={setChatUserId}
+                  {...chatMetaData}
+                />
+              );
+            })
+          ) : (
+            <div
+              style={{
+                display: "flex",
+                width: "100%",
+                justifyContent: "center",
+                paddingTop: "2rem",
+              }}
+            >
+              <Text fw={700}>No user found</Text>
+            </div>
+          )}
           <NewChatBtn />
         </Navbar>
       }
@@ -182,7 +194,7 @@ export const App: React.FC<AppShellProps> = ({
       // }
       // header={
       //   <Header
-      //     height={{ base: 50, md: 70 }}
+      //     height={{ base: 45, md: 70 }}
       //     p="md"
       //     style={
       //       {
@@ -228,14 +240,14 @@ export const App: React.FC<AppShellProps> = ({
       //             <IconSun
       //               size={20}
       //               style={{
-      //                 borderRadius: "50%",
+      //                 borderRadius: "45%",
       //               }}
       //             />
       //           ) : (
       //             <IconMoonStars
       //               size={20}
       //               style={{
-      //                 borderRadius: "50%",
+      //                 borderRadius: "45%",
       //               }}
       //             />
       //           )}

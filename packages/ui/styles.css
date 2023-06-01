@@ -15,7 +15,7 @@
   opacity: 0.75;
 }
 
-.new-chat-btn {
+#new-chat-btn {
   position: absolute;
   bottom: 1rem;
   right: 1rem;
