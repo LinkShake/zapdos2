@@ -211,7 +211,11 @@ const schema: any = createSchema({
           },
           include: {
             messages: true,
-            notifications: true,
+            notifications: {
+              where: {
+                userId: id,
+              },
+            },
           },
           orderBy: {
             lastUpdate: "desc",
@@ -314,7 +318,11 @@ const schema: any = createSchema({
               id: args.id,
             },
             include: {
-              notifications: true,
+              notifications: {
+                where: {
+                  userId: args.to,
+                },
+              },
             },
           });
 
@@ -326,17 +334,33 @@ const schema: any = createSchema({
               notifications: {
                 create: {
                   counter: 1,
+                  userId: args.to,
                 },
                 update: {
-                  counter: chat?.notifications?.counter
-                    ? chat.notifications.counter + 1
-                    : 1,
+                  where: {
+                    userId: args.to,
+                  },
+                  data: {
+                    counter: chat?.notifications[0]?.counter
+                      ? chat.notifications[0].counter + 1
+                      : 1,
+                  },
+                  // counter: chat?.notifications?.counter
+                  //   ? chat.notifications.counter + 1
+                  //   : 1,
+                  // data: {
+
+                  // }
                 },
               },
               lastUpdate: new Date(),
             },
             include: {
-              notifications: true,
+              notifications: {
+                where: {
+                  userId: args.to,
+                },
+              },
             },
           });
 
@@ -364,7 +388,7 @@ const schema: any = createSchema({
               type: "newNotification",
               notifications: {
                 id: args.id,
-                counter: updatedChat.notifications?.counter,
+                counter: updatedChat.notifications[0]?.counter,
               },
             },
           });
@@ -505,6 +529,7 @@ const schema: any = createSchema({
         const updatedNotifications = await prisma.notification.update({
           where: {
             chatId: id,
+            userId,
           },
           data: {
             counter: 0,

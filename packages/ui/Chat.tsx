@@ -169,7 +169,7 @@ export const Chat: React.FC<ChatProps> = ({
         //maxHeight: "90vh",
         height: "100vh",
         // overflowY: "auto",
-        gridTemplateRows: "10fr 80fr 10fr",
+        gridTemplateRows: "10fr 80fr 10fr !important",
         scrollbarWidth: "none",
         position: "relative",
         overflowY: "auto",

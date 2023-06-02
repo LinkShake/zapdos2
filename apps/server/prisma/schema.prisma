@@ -27,8 +27,7 @@ model Message {
 model Notification {
   id  String  @id @default(cuid())
   counter Int
-  // chat Chat? @relation(fields: [chatId], references: [id])
-  // chatId String @default(cuid())
+  userId String @unique
   chat Chat? @relation(fields: [chatId], references: [id])
   chatId String? @unique
 }
@@ -39,5 +38,5 @@ model Chat {
   user2 String
   lastUpdate DateTime @default(now())
   messages Message[] 
-  notifications Notification?
+  notifications Notification[]
 }
