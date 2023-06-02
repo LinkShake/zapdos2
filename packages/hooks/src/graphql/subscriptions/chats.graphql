@@ -1,0 +1,22 @@
+subscription OnChats($id: String) {
+  chatsSub(id: $id) {
+    type
+    id
+    user1 {
+      id
+      username
+    }
+    user2 {
+      id
+      username
+    }
+    messages {
+      id
+      text
+    }
+    notifications {
+      id
+      counter
+    }
+  }
+}

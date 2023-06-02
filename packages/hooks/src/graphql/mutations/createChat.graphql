@@ -1,0 +1,5 @@
+mutation CreateChat($id: String!, $id2: String!) {
+  createChat(id: $id, id2: $id2) {
+    id
+  }
+}

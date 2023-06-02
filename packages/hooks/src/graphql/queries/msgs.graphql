@@ -1,0 +1,8 @@
+query Msgs($id: String) {
+  msgs(id: $id) {
+    id
+    text
+    from
+    to
+  }
+}

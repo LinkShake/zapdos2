@@ -1,0 +1,5 @@
+mutation DeleteMsg($id: Int!, $chatId: String!) {
+  deleteMsg(id: $id, chatId: $chatId) {
+    text
+  }
+}

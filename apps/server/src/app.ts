@@ -95,7 +95,7 @@ const addUserDataToChats = async (chatsArr: any[], id: string) => {
   }) as ChatWithData[];
 };
 
-const schema: any = createSchema({
+export const schema: any = createSchema({
   typeDefs: `
         type Query {
             hello: String,

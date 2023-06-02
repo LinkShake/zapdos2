@@ -1,0 +1,23 @@
+query Chats($id: String, $params: String) {
+  chats(id: $id, params: $params) {
+    id
+    user1 {
+      id
+      image
+      username
+    }
+    user2 {
+      id
+      image
+      username
+    }
+    messages {
+      id
+      text
+    }
+    notifications {
+      id
+      counter
+    }
+  }
+}

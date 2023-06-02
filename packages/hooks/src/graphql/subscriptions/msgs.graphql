@@ -1,0 +1,15 @@
+subscription OnMessage($id: String) {
+  msgsSub(id: $id) {
+    msg {
+      id
+      text
+      from
+      to
+    }
+    type
+    msgArr {
+      id
+      text
+    }
+  }
+}
