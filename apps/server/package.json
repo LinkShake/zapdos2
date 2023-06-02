@@ -17,10 +17,13 @@
     "@clerk/fastify": "^0.3.0",
     "@fastify/cors": "^8.2.1",
     "@prisma/client": "^4.15.0",
+    "class-validator": "^0.14.0",
     "dotenv": "^16.0.3",
     "fastify": "^4.15.0",
     "graphql": "^16.6.0",
-    "graphql-yoga": "^3.8.0"
+    "graphql-yoga": "^3.8.0",
+    "reflect-metadata": "^0.1.13",
+    "type-graphql": "^2.0.0-beta.2"
   },
   "devDependencies": {
     "@types/node": "^18.15.11",

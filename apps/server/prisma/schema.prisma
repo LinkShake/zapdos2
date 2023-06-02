@@ -28,8 +28,8 @@ model Notification {
   id  String  @id @default(cuid())
   counter Int
   userId String @unique
-  chat Chat? @relation(fields: [chatId], references: [id])
-  chatId String? @unique
+  chat Chat @relation(fields: [chatId], references: [id]) 
+  chatId String  
 }
 
 model Chat {
