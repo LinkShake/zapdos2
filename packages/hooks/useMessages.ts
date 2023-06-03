@@ -13,19 +13,21 @@ export const useMessages = (params: { id: string }) => {
   `;
 
   const subscription = gql`
-    subscription OnMessage($id: String) {
-      msgsSub(id: $id) {
+    subscription OnMessage($topic: String) {
+      msgsSub(topic: $topic) {
         msg {
           id
           text
           from
           to
         }
-        type
-        msgArr {
+        msgsArr {
           id
           text
+          from
+          to
         }
+        type
       }
     }
   `;

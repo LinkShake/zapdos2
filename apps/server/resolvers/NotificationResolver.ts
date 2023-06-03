@@ -10,13 +10,13 @@ type NotificationReturnType = {
 export class NotificationResolver {
   @Mutation((type) => Notification)
   async markAsRead(
-    @Arg("id") id: string,
-    @Arg("userId") userId: string,
+    @Arg("id", { nullable: true }) id: string,
+    @Arg("userId", { nullable: true }) userId: string,
     @PubSub() pubSub: PubSubEngine
   ): Promise<Notification> {
     await prisma.notification.updateMany({
       where: {
-        AND: [{ userId }, { chatId: id }],
+        AND: [{ userId }, { id }],
       },
       data: {
         counter: 0,
@@ -25,7 +25,7 @@ export class NotificationResolver {
 
     const updatedNotifications = await prisma.notification.findFirst({
       where: {
-        AND: [{ userId }, { chatId: id }],
+        AND: [{ userId }, { id }],
       },
     });
 

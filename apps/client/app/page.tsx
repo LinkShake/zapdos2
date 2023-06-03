@@ -32,17 +32,13 @@ const CHATS_QUERY = gql`
       id
       user1 {
         id
-        image
         username
+        image
       }
       user2 {
         id
-        image
         username
-      }
-      messages {
-        id
-        text
+        image
       }
       notifications {
         id
@@ -53,7 +49,7 @@ const CHATS_QUERY = gql`
 `;
 
 const SEND_MSG_MUTATION = gql`
-  mutation sendMsg($text: String!, $id: String!, $to: String, $from: String) {
+  mutation sendMsg($text: String!, $id: String!, $to: String!, $from: String!) {
     sendMsg(text: $text, id: $id, to: $to, from: $from) {
       text
     }
@@ -78,21 +74,19 @@ const UPDATE_MSG_MUTATION = gql`
 `;
 
 const CHATS_SUBSCRIPTION = gql`
-  subscription ChatSub($id: String) {
-    chatsSub(id: $id) {
+  subscription ChatSub($topic: String) {
+    chatsSub(topic: $topic) {
       type
       id
       user1 {
         id
         username
+        image
       }
       user2 {
         id
         username
-      }
-      messages {
-        id
-        text
+        image
       }
       notifications {
         id
@@ -117,7 +111,7 @@ function Home() {
   >("closed");
   const { user: userData } = useUser();
   const {
-    data: chats,
+    data: chat,
     loading,
     subscribeToMore,
     refetch,
@@ -137,7 +131,7 @@ function Home() {
       onError(error) {
         console.log(error.message);
       },
-      variables: { id: userData?.id },
+      variables: { topic: userData?.id },
       updateQuery: (prev, { subscriptionData }) => {
         // console.log("subscription hit");
         if (!subscriptionData.data) return prev;
@@ -240,7 +234,7 @@ function Home() {
                   themeState={colorScheme}
                   sendMsg={sendMsg}
                   UserProfile={<UserButton />}
-                  chats={chats?.chats}
+                  chats={chat?.chats}
                   deleteMsg={deleteMsg}
                   updateMsg={updateMsg}
                   isDataLoading={loading}

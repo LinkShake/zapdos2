@@ -54,7 +54,7 @@ export const Chat: React.FC<ChatProps> = ({
   // const matchPaddingChange = useMediaQuery("(max-width: 990px)");
   const { data: user } = useQuery(
     gql`
-      query getUser($id: String) {
+      query getUser($id: String!) {
         getUser(id: $id) {
           username
           image
@@ -115,7 +115,7 @@ export const Chat: React.FC<ChatProps> = ({
     }
     subscribeToMore({
       document: subscription,
-      variables: { id },
+      variables: { topic: id },
       // @ts-ignore
       updateQuery: (prev, { subscriptionData }) => {
         if (!subscriptionData.data) return prev;

@@ -95,8 +95,6 @@ export const App: React.FC<AppShellProps> = ({
     variables: { id: chatId, userId: currUser },
   });
 
-  console.log(isDataLoading);
-
   return (
     <AppShell
       // className="app"
@@ -174,7 +172,7 @@ export const App: React.FC<AppShellProps> = ({
                 paddingTop: "2rem",
               }}
             >
-              <Text fw={700}>No user found</Text>
+              <Text fw={700}>No such user or chat</Text>
             </div>
           )}
           <NewChatBtn />

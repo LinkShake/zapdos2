@@ -2,9 +2,9 @@ import { ObjectType, Field, ID } from "type-graphql";
 
 @ObjectType()
 export class Notification {
-  @Field((type) => ID)
+  @Field((type) => ID, { nullable: true })
   id: string;
 
-  @Field()
+  @Field({ nullable: true })
   counter: number;
 }

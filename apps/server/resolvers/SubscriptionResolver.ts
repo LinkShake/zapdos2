@@ -9,7 +9,7 @@ export class SubscriptionResolver {
   })
   msgsSub(
     @Root() messagePayload: MessageSub,
-    @Arg("topic") topic: string
+    @Arg("topic", { nullable: true }) topic: string
   ): MessageSub {
     return {
       ...messagePayload,
@@ -19,7 +19,10 @@ export class SubscriptionResolver {
   @Subscription(() => ChatSub, {
     topics: ({ args }) => `chatsSub_${args.topic}`,
   })
-  chatsSub(@Root() chatPayload: ChatSub, @Arg("topic") topic: string): ChatSub {
+  chatsSub(
+    @Root() chatPayload: ChatSub,
+    @Arg("topic", { nullable: true }) topic: string
+  ): ChatSub {
     return {
       ...chatPayload,
     };

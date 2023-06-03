@@ -13,7 +13,9 @@ import { pubSub } from "../src/pubsub";
 @Resolver()
 export class MessageResolver {
   @Query(() => [Message])
-  async msgs(@Arg("id") id: string): Promise<Array<Message>> {
+  async msgs(
+    @Arg("id", { nullable: true }) id: string
+  ): Promise<Array<Message>> {
     const msgs = await prisma.message.findMany({
       where: {
         chatId: id,
@@ -65,7 +67,7 @@ export class MessageResolver {
             userId: to,
           },
           {
-            chatId: id,
+            id,
           },
         ],
       },
@@ -78,11 +80,12 @@ export class MessageResolver {
             userId: to,
           },
           {
-            chatId: id,
+            id,
           },
         ],
       },
       data: {
+        id,
         counter: prevNotifications?.counter ? prevNotifications.counter + 1 : 1,
       },
     });

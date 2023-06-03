@@ -75,8 +75,8 @@ const addUserDataToChats = async (chatsArr: any[], id: string) => {
 export class ChatResolver {
   @Query((returns) => [Chat])
   async chats(
-    @Arg("id") id: string,
-    @Arg("params") params: string
+    @Arg("id", { nullable: true }) id?: string,
+    @Arg("params", { nullable: true }) params?: string
   ): Promise<Array<Chat>> {
     const chats = await prisma.chat.findMany({
       where: {
@@ -102,14 +102,16 @@ export class ChatResolver {
       },
     });
 
-    const actualChats = await addUserDataToChats(chats, id);
+    const actualChats = await addUserDataToChats(chats, id as string);
 
-    if (!params) return [...actualChats];
+    console.log("actualChats: ", actualChats);
+
+    if (params === "") return [...actualChats];
     else
       return actualChats.filter(({ user1, user2 }) =>
         id === user1.id
-          ? user2.username.includes(params)
-          : user1.username.includes(params)
+          ? user2.username.includes(params as string)
+          : user1.username.includes(params as string)
       );
   }
 
@@ -136,10 +138,13 @@ export class ChatResolver {
 
     if (chat.length) throw new Error("Chat already existing!");
 
+    console.log(id);
+
     const newChat = await prisma.chat.create({
       data: {
         user1: id,
         user2: id2,
+        notifications: {},
       },
       include: {
         messages: true,
