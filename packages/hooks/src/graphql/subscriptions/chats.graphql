@@ -5,14 +5,12 @@ subscription OnChats($topic: String) {
     user1 {
       id
       username
+      image
     }
     user2 {
       id
       username
-    }
-    messages {
-      id
-      text
+      image
     }
     notifications {
       id

@@ -27,7 +27,7 @@ model Message {
 model Notification {
   id  String  @id @default(cuid())
   counter Int
-  userId String @unique
+  userId String
   chat Chat? @relation(fields: [chatId], references: [id]) 
   chatId String?  
 }

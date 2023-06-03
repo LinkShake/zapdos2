@@ -73,7 +73,7 @@ export const Chat: React.FC<ChatProps> = ({
       ? sendMsg({
           variables: {
             text: inputField,
-            id: id,
+            id,
             to: chatUserId,
             from: me?.id as string,
           },
@@ -96,6 +96,8 @@ export const Chat: React.FC<ChatProps> = ({
       updateQuery: (prev, { subscriptionData }) => {
         if (!subscriptionData.data) return prev;
 
+        console.log("sub data: ", subscriptionData.data);
+
         // @ts-ignore
         if (subscriptionData.data.msgsSub.type === "newMsg") {
           return Object.assign({}, prev, {
@@ -104,9 +106,11 @@ export const Chat: React.FC<ChatProps> = ({
           });
           // @ts-ignore
         } else if (subscriptionData.data.msgsSub.type === "deletedMsg") {
+          // @ts-ignore
+          console.log(subscriptionData.data.msgsSub.msgsArr);
           return Object.assign({}, prev, {
             // @ts-ignore
-            msgs: [...subscriptionData.data.msgsSub.msgArr],
+            msgs: [...subscriptionData.data.msgsSub.msgsArr],
           });
           // @ts-ignore
         } else if (subscriptionData.data.msgsSub.type === "updatedMsg") {

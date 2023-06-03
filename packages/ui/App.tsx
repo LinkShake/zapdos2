@@ -23,7 +23,7 @@ interface User {
   image: string;
 }
 
-type Chats = {
+type Chat = {
   id: string;
   user1: User;
   user2: User;
@@ -36,41 +36,9 @@ type Chats = {
 
 interface AppShellProps {
   currUser: string;
-  setTheme: Dispatch<SetStateAction<"dark" | "light">>;
-  themeState: "dark" | "light";
-  // msgsArr: Array<{ text: string; id: number; chatId: string }>;
-  sendMsg: ({
-    variables: { text, id, to, from },
-  }: {
-    variables: {
-      text: string;
-      id: string;
-      to: string;
-      from: string | undefined;
-    };
-  }) => void;
-  UserProfile: React.ReactNode;
-  chats: Chats[];
-  deleteMsg: ({
-    variables: { id, chatId },
-  }: {
-    variables: { id: number; chatId: string };
-  }) => void;
-  updateMsg: ({
-    variables: { id, chatId, text },
-  }: {
-    variables: { id: number; chatId: string; text: string };
-  }) => void;
+  chats: Chat[];
   isDataLoading: boolean;
 }
-
-const markAsReadGql = gql`
-  mutation markAsRead($id: String, $userId: String) {
-    markAsRead(id: $id, userId: $userId) {
-      counter
-    }
-  }
-`;
 
 export const App: React.FC<AppShellProps> = ({
   currUser,

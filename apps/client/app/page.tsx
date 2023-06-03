@@ -7,94 +7,85 @@ import {
 } from "@mantine/core";
 import { useEffect, useState } from "react";
 import {
-  useQuery,
   gql,
   ApolloProvider,
   ApolloClient,
   InMemoryCache,
-  useMutation,
 } from "@apollo/client";
 import { link } from "../utils/SSELink";
-import { UserButton, useUser } from "@clerk/nextjs/app-beta/client";
+import { useUser } from "@clerk/nextjs/app-beta/client";
 import { NewChatModalContext } from "context";
 import { Subscriptions } from "context/components/Subscriptions";
-import { ChatsParams, ChatsRefetchCxt } from "context";
+import { ChatsRefetchCxt } from "context";
 import { useHotkeys, useLocalStorage } from "@mantine/hooks";
+import { OnChatsDocument, useChatsQuery } from "hooks";
 
 const client = new ApolloClient({
   link,
   cache: new InMemoryCache(),
 });
 
-const CHATS_QUERY = gql`
-  query Chats($id: String, $params: String) {
-    chats(id: $id, params: $params) {
-      id
-      user1 {
-        id
-        username
-        image
-      }
-      user2 {
-        id
-        username
-        image
-      }
-      notifications {
-        id
-        counter
-      }
-    }
-  }
-`;
+interface User {
+  id: string;
+  username: string;
+  image: string;
+}
 
-const SEND_MSG_MUTATION = gql`
-  mutation sendMsg($text: String!, $id: String!, $to: String!, $from: String!) {
-    sendMsg(text: $text, id: $id, to: $to, from: $from) {
-      text
-    }
-  }
-`;
+type Chat = {
+  id: string;
+  user1: User;
+  user2: User;
+  messages: Array<{ id: string; text: string }>;
+  notifications: {
+    id: string;
+    counter: number;
+  };
+};
 
-const DELETE_MSG_MUTATION = gql`
-  mutation deleteMsg($id: Int!, $chatId: String!) {
-    deleteMsg(id: $id, chatId: $chatId) {
-      text
-    }
-  }
-`;
+// const CHATS_QUERY = gql`
+//   query Chats($id: String, $params: String) {
+//     chats(id: $id, params: $params) {
+//       id
+//       user1 {
+//         id
+//         username
+//         image
+//       }
+//       user2 {
+//         id
+//         username
+//         image
+//       }
+//       notifications {
+//         id
+//         counter
+//       }
+//     }
+//   }
+// `;
 
-const UPDATE_MSG_MUTATION = gql`
-  mutation updateMsg($id: Int!, $text: String!, $chatId: String!) {
-    updateMsg(id: $id, text: $text, chatId: $chatId) {
-      id
-      text
-    }
-  }
-`;
-
-const CHATS_SUBSCRIPTION = gql`
-  subscription ChatSub($topic: String) {
-    chatsSub(topic: $topic) {
-      type
-      id
-      user1 {
-        id
-        username
-        image
-      }
-      user2 {
-        id
-        username
-        image
-      }
-      notifications {
-        id
-        counter
-      }
-    }
-  }
-`;
+// const CHATS_SUBSCRIPTION = gql`
+//   subscription ChatSub($topic: String) {
+//     chatsSub(topic: $topic) {
+//       type
+//       id
+//       user1 {
+//         id
+//         username
+//         image
+//       }
+//       user2 {
+//         id
+//         username
+//         image
+//       }
+//       notifications {
+//         id
+//         counter
+//       }
+//     }
+//   }
+// `;
 
 function Home() {
   const [colorScheme, setColorScheme] = useLocalStorage<ColorScheme>({
@@ -115,34 +106,30 @@ function Home() {
     loading,
     subscribeToMore,
     refetch,
-  } = useQuery(CHATS_QUERY, {
+  } = useChatsQuery({
     variables: { id: userData?.id, params: chatsParams },
     onError(error) {
       console.log(error.message);
     },
   });
-  const [sendMsg] = useMutation(SEND_MSG_MUTATION);
-  const [deleteMsg] = useMutation(DELETE_MSG_MUTATION);
-  const [updateMsg] = useMutation(UPDATE_MSG_MUTATION);
 
   useEffect(() => {
     subscribeToMore({
-      document: CHATS_SUBSCRIPTION,
+      document: OnChatsDocument,
       onError(error) {
         console.log(error.message);
       },
       variables: { topic: userData?.id },
+      // @ts-ignore
       updateQuery: (prev, { subscriptionData }) => {
-        // console.log("subscription hit");
+        console.log("something has changed!");
         if (!subscriptionData.data) return prev;
 
         const { data: dataObj } = subscriptionData;
+        // @ts-ignore
         const data = dataObj.chatsSub;
 
-        // console.log(data);
-
         if (data.type === "newChat") {
-          // console.log("new chat created");
           const formattedData = {
             id: data?.id,
             user1: data?.user1,
@@ -155,7 +142,6 @@ function Home() {
             chats: [formattedData, ...prev.chats],
           });
         } else if (data.type === "newNotification") {
-          // console.log("new notifications 4 u");
           const newData = prev.chats
             .filter((_data: any) => _data.id === data.notifications.id)
             .map((_data: any) => {
@@ -230,13 +216,7 @@ function Home() {
               >
                 <App
                   currUser={userData?.id || ""}
-                  setTheme={setColorScheme}
-                  themeState={colorScheme}
-                  sendMsg={sendMsg}
-                  UserProfile={<UserButton />}
-                  chats={chat?.chats}
-                  deleteMsg={deleteMsg}
-                  updateMsg={updateMsg}
+                  chats={chat?.chats as Chat[]}
                   isDataLoading={loading}
                 />
                 {newChatModalState === "opened" && <NewChatModal />}

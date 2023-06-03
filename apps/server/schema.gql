@@ -12,12 +12,12 @@ type Chat {
 }
 
 type ChatSub {
-  id: ID!
+  id: ID
   messages: [Message!]!
   notifications: Notification!
   type: String!
-  user1: User!
-  user2: User!
+  user1: User
+  user2: User
 }
 
 type Message {
@@ -35,10 +35,10 @@ type MessageSub {
 
 type Mutation {
   createChat(id: String!, id2: String!): Chat!
-  deleteMsg(chatId: String!, id: Float!): [Message!]!
+  deleteMsg(chatId: String!, id: Int!, text: String): [Message!]!
   markAsRead(id: String, userId: String): Notification!
   sendMsg(from: String!, id: String!, text: String!, to: String!): Message!
-  updateMsg(chatId: String!, id: Float!, text: String!): Message!
+  updateMsg(chatId: String!, id: Int!, text: String): Message!
 }
 
 type Notification {

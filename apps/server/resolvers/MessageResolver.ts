@@ -5,8 +5,10 @@ import {
   Mutation,
   PubSub,
   PubSubEngine,
+  Field,
+  Args,
 } from "type-graphql";
-import { Message } from "../types/Message";
+import { Message, MessageArgs } from "../types/Message";
 import { prisma } from "../utils/prisma";
 import { pubSub } from "../src/pubsub";
 
@@ -25,15 +27,6 @@ export class MessageResolver {
     return msgs;
   }
 
-  //   @Subscription(() => ChatSub, {
-  //     topics: ({ args }) => args.topic,
-  //   })
-  //   chatsSub(@Root() chatsPayload: ChatSub): ChatSub {
-  //     return {
-  //       ...chatsPayload,
-  //     };
-  //   }
-
   @Mutation((returns) => Message)
   async sendMsg(
     @Arg("id") id: string,
@@ -42,6 +35,10 @@ export class MessageResolver {
     @Arg("from") from: string,
     @PubSub() pubSub: PubSubEngine
   ): Promise<Message> {
+    console.log("id: ", id);
+    console.log("text: ", text);
+    console.log("from: ", from);
+    console.log("to: ", to);
     const msg = await prisma.message.create({
       data: {
         chatId: id,
@@ -73,6 +70,26 @@ export class MessageResolver {
       },
     });
 
+    // @ts-ignore
+    if (!prevNotifications && !prevNotifications?.counter) {
+      const newNotification = await prisma.notification.create({
+        data: {
+          id,
+          chatId: id,
+          userId: to,
+          counter: 1,
+        },
+      });
+
+      await pubSub.publish(`chatsSub_${to}`, {
+        type: "newNotification",
+        notifications: {
+          id,
+          counter: newNotification?.counter,
+        },
+      });
+    }
+
     await prisma.notification.updateMany({
       where: {
         AND: [
@@ -97,11 +114,13 @@ export class MessageResolver {
             userId: to,
           },
           {
-            chatId: id,
+            id,
           },
         ],
       },
     });
+
+    console.log("updatedNotifications: ", updatedNotifications);
 
     await pubSub.publish(`chatsSub_${to}`, {
       type: "newNotification",
@@ -121,9 +140,7 @@ export class MessageResolver {
 
   @Mutation((returns) => [Message])
   async deleteMsg(
-    @Arg("id") id: number,
-    @Arg("chatId") chatId: string,
-
+    @Args() { id, chatId }: MessageArgs,
     @PubSub() pubSub: PubSubEngine
   ): Promise<Array<Message>> {
     await prisma.chat.update({
@@ -146,7 +163,7 @@ export class MessageResolver {
     });
 
     await pubSub.publish(`msgsSub_${chatId}`, {
-      msgArr: [...msgs],
+      msgsArr: [...msgs],
       type: "deletedMsg",
     });
 
@@ -154,11 +171,7 @@ export class MessageResolver {
   }
 
   @Mutation((returns) => Message)
-  async updateMsg(
-    @Arg("id") id: number,
-    @Arg("text") text: string,
-    @Arg("chatId") chatId: string
-  ): Promise<Message> {
+  async updateMsg(@Args() { id, chatId, text }: MessageArgs): Promise<Message> {
     await prisma.chat.update({
       where: {
         id: chatId,

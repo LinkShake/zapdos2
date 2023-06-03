@@ -80,7 +80,8 @@ export type MutationCreateChatArgs = {
 
 export type MutationDeleteMsgArgs = {
   chatId: Scalars["String"]["input"];
-  id: Scalars["Float"]["input"];
+  id: Scalars["Int"]["input"];
+  text?: InputMaybe<Scalars["String"]["input"]>;
 };
 
 export type MutationMarkAsReadArgs = {
@@ -97,8 +98,8 @@ export type MutationSendMsgArgs = {
 
 export type MutationUpdateMsgArgs = {
   chatId: Scalars["String"]["input"];
-  id: Scalars["Float"]["input"];
-  text: Scalars["String"]["input"];
+  id: Scalars["Int"]["input"];
+  text?: InputMaybe<Scalars["String"]["input"]>;
 };
 
 export type Notification = {
@@ -160,7 +161,7 @@ export type CreateChatMutation = {
 };
 
 export type DeleteMsgMutationVariables = Exact<{
-  id: Scalars["Float"]["input"];
+  id: Scalars["Int"]["input"];
   chatId: Scalars["String"]["input"];
 }>;
 
@@ -196,7 +197,7 @@ export type SendMsgMutation = {
 };
 
 export type UpdateMsgMutationVariables = Exact<{
-  id: Scalars["Float"]["input"];
+  id: Scalars["Int"]["input"];
   text: Scalars["String"]["input"];
   chatId: Scalars["String"]["input"];
 }>;
@@ -382,7 +383,7 @@ export type CreateChatMutationOptions = Apollo.BaseMutationOptions<
   CreateChatMutationVariables
 >;
 export const DeleteMsgDocument = gql`
-  mutation DeleteMsg($id: Float!, $chatId: String!) {
+  mutation DeleteMsg($id: Int!, $chatId: String!) {
     deleteMsg(id: $id, chatId: $chatId) {
       text
     }
@@ -534,7 +535,7 @@ export type SendMsgMutationOptions = Apollo.BaseMutationOptions<
   SendMsgMutationVariables
 >;
 export const UpdateMsgDocument = gql`
-  mutation UpdateMsg($id: Float!, $text: String!, $chatId: String!) {
+  mutation UpdateMsg($id: Int!, $text: String!, $chatId: String!) {
     updateMsg(id: $id, text: $text, chatId: $chatId) {
       id
       text
@@ -800,14 +801,12 @@ export const OnChatsDocument = gql`
       user1 {
         id
         username
+        image
       }
       user2 {
         id
         username
-      }
-      messages {
-        id
-        text
+        image
       }
       notifications {
         id

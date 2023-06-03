@@ -5,13 +5,13 @@ import { Notification } from "./Notification";
 
 @ObjectType()
 export class ChatSub {
-  @Field((type) => ID)
+  @Field((type) => ID, { nullable: true })
   id: string;
 
-  @Field()
+  @Field({ nullable: true })
   user1: User;
 
-  @Field()
+  @Field({ nullable: true })
   user2: User;
 
   @Field((type) => [Message])

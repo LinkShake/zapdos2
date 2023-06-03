@@ -1,4 +1,4 @@
-mutation UpdateMsg($id: Float!, $text: String!, $chatId: String!) {
+mutation UpdateMsg($id: Int!, $text: String!, $chatId: String!) {
   updateMsg(id: $id, text: $text, chatId: $chatId) {
     id
     text

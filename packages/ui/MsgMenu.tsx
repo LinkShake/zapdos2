@@ -207,7 +207,9 @@ export const MsgMenu: React.FC<MsgMenuProps> = forwardRef(
               onClick={() => {
                 // console.log("clicked", id);
                 // subscriptionAction?.setState("deletedMsg");
-                deleteMsg({ variables: { id, chatId } });
+                console.log("id: ", id);
+                console.log("chatId: ", chatId);
+                deleteMsg({ variables: { id: +id, chatId } });
               }}
             >
               Delete
