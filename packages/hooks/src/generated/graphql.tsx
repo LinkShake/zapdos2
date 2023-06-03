@@ -32,41 +32,43 @@ export type Scalars = {
 
 export type Chat = {
   __typename?: "Chat";
-  id: Scalars["String"]["output"];
-  messages?: Maybe<Array<Maybe<Message>>>;
-  notifications?: Maybe<Notification>;
-  user1?: Maybe<User>;
-  user2?: Maybe<User>;
+  id: Scalars["ID"]["output"];
+  messages: Array<Message>;
+  notifications: Notification;
+  user1: User;
+  user2: User;
 };
 
 export type ChatSub = {
   __typename?: "ChatSub";
-  id?: Maybe<Scalars["String"]["output"]>;
-  messages?: Maybe<Array<Maybe<Message>>>;
-  notifications?: Maybe<Notification>;
-  type?: Maybe<Scalars["String"]["output"]>;
-  user1?: Maybe<User>;
-  user2?: Maybe<User>;
-};
-
-export type Id = {
-  __typename?: "Id";
-  id: Scalars["String"]["output"];
+  id: Scalars["ID"]["output"];
+  messages: Array<Message>;
+  notifications: Notification;
+  type: Scalars["String"]["output"];
+  user1: User;
+  user2: User;
 };
 
 export type Message = {
   __typename?: "Message";
-  from?: Maybe<Scalars["String"]["output"]>;
-  id: Scalars["Int"]["output"];
+  from: Scalars["String"]["output"];
+  id: Scalars["ID"]["output"];
   text: Scalars["String"]["output"];
-  to?: Maybe<Scalars["String"]["output"]>;
+  to: Scalars["String"]["output"];
+};
+
+export type MessageSub = {
+  __typename?: "MessageSub";
+  msg?: Maybe<Message>;
+  msgsArr?: Maybe<Array<Message>>;
+  type: Scalars["String"]["output"];
 };
 
 export type Mutation = {
   __typename?: "Mutation";
-  createChat?: Maybe<Chat>;
-  deleteMsg?: Maybe<Array<Maybe<Message>>>;
-  markAsRead?: Maybe<Notification>;
+  createChat: Chat;
+  deleteMsg: Array<Message>;
+  markAsRead: Notification;
   sendMsg: Message;
   updateMsg: Message;
 };
@@ -78,7 +80,7 @@ export type MutationCreateChatArgs = {
 
 export type MutationDeleteMsgArgs = {
   chatId: Scalars["String"]["input"];
-  id: Scalars["Int"]["input"];
+  id: Scalars["Float"]["input"];
 };
 
 export type MutationMarkAsReadArgs = {
@@ -87,38 +89,30 @@ export type MutationMarkAsReadArgs = {
 };
 
 export type MutationSendMsgArgs = {
-  from?: InputMaybe<Scalars["String"]["input"]>;
-  id?: InputMaybe<Scalars["String"]["input"]>;
+  from: Scalars["String"]["input"];
+  id: Scalars["String"]["input"];
   text: Scalars["String"]["input"];
-  to?: InputMaybe<Scalars["String"]["input"]>;
+  to: Scalars["String"]["input"];
 };
 
 export type MutationUpdateMsgArgs = {
   chatId: Scalars["String"]["input"];
-  id: Scalars["Int"]["input"];
+  id: Scalars["Float"]["input"];
   text: Scalars["String"]["input"];
 };
 
 export type Notification = {
   __typename?: "Notification";
-  counter?: Maybe<Scalars["Int"]["output"]>;
-  id?: Maybe<Scalars["String"]["output"]>;
-};
-
-export type PubSubType = {
-  __typename?: "PubSubType";
-  msg?: Maybe<Message>;
-  msgArr?: Maybe<Array<Maybe<Message>>>;
-  type: Scalars["String"]["output"];
+  counter?: Maybe<Scalars["Float"]["output"]>;
+  id?: Maybe<Scalars["ID"]["output"]>;
 };
 
 export type Query = {
   __typename?: "Query";
-  chats?: Maybe<Array<Maybe<Chat>>>;
-  getUser?: Maybe<User>;
-  hello?: Maybe<Scalars["String"]["output"]>;
-  msgs?: Maybe<Array<Maybe<Message>>>;
-  users?: Maybe<Array<Maybe<User>>>;
+  chats: Array<Chat>;
+  getUser: User;
+  msgs: Array<Message>;
+  users: Array<User>;
 };
 
 export type QueryChatsArgs = {
@@ -127,7 +121,7 @@ export type QueryChatsArgs = {
 };
 
 export type QueryGetUserArgs = {
-  id?: InputMaybe<Scalars["String"]["input"]>;
+  id: Scalars["String"]["input"];
 };
 
 export type QueryMsgsArgs = {
@@ -137,28 +131,23 @@ export type QueryMsgsArgs = {
 export type Subscription = {
   __typename?: "Subscription";
   chatsSub: ChatSub;
-  deletedMsg?: Maybe<Array<Maybe<Message>>>;
-  msgsSub: PubSubType;
-  newMsg: Message;
-  updatedMsg: Message;
+  msgsSub: MessageSub;
 };
 
 export type SubscriptionChatsSubArgs = {
-  id?: InputMaybe<Scalars["String"]["input"]>;
+  topic?: InputMaybe<Scalars["String"]["input"]>;
 };
 
 export type SubscriptionMsgsSubArgs = {
-  id?: InputMaybe<Scalars["String"]["input"]>;
+  topic?: InputMaybe<Scalars["String"]["input"]>;
 };
 
 export type User = {
   __typename?: "User";
-  id?: Maybe<Scalars["String"]["output"]>;
+  id?: Maybe<Scalars["ID"]["output"]>;
   image?: Maybe<Scalars["String"]["output"]>;
   username?: Maybe<Scalars["String"]["output"]>;
 };
-
-export type UserData = Id | User;
 
 export type CreateChatMutationVariables = Exact<{
   id: Scalars["String"]["input"];
@@ -167,24 +156,24 @@ export type CreateChatMutationVariables = Exact<{
 
 export type CreateChatMutation = {
   __typename?: "Mutation";
-  createChat?: { __typename?: "Chat"; id: string } | null;
+  createChat: { __typename?: "Chat"; id: string };
 };
 
 export type DeleteMsgMutationVariables = Exact<{
-  id: Scalars["Int"]["input"];
+  id: Scalars["Float"]["input"];
   chatId: Scalars["String"]["input"];
 }>;
 
 export type DeleteMsgMutation = {
   __typename?: "Mutation";
-  deleteMsg?: Array<{ __typename?: "Message"; text: string } | null> | null;
+  deleteMsg: Array<{ __typename?: "Message"; text: string }>;
 };
 
 export type SendMsgMutationVariables = Exact<{
   text: Scalars["String"]["input"];
   id: Scalars["String"]["input"];
-  to?: InputMaybe<Scalars["String"]["input"]>;
-  from?: InputMaybe<Scalars["String"]["input"]>;
+  to: Scalars["String"]["input"];
+  from: Scalars["String"]["input"];
 }>;
 
 export type SendMsgMutation = {
@@ -193,14 +182,14 @@ export type SendMsgMutation = {
 };
 
 export type UpdateMsgMutationVariables = Exact<{
-  id: Scalars["Int"]["input"];
+  id: Scalars["Float"]["input"];
   text: Scalars["String"]["input"];
   chatId: Scalars["String"]["input"];
 }>;
 
 export type UpdateMsgMutation = {
   __typename?: "Mutation";
-  updateMsg: { __typename?: "Message"; id: number; text: string };
+  updateMsg: { __typename?: "Message"; id: string; text: string };
 };
 
 export type ChatsQueryVariables = Exact<{
@@ -210,32 +199,41 @@ export type ChatsQueryVariables = Exact<{
 
 export type ChatsQuery = {
   __typename?: "Query";
-  chats?: Array<{
+  chats: Array<{
     __typename?: "Chat";
     id: string;
-    user1?: {
+    user1: {
       __typename?: "User";
       id?: string | null;
       image?: string | null;
       username?: string | null;
-    } | null;
-    user2?: {
+    };
+    user2: {
       __typename?: "User";
       id?: string | null;
       image?: string | null;
       username?: string | null;
-    } | null;
-    messages?: Array<{
-      __typename?: "Message";
-      id: number;
-      text: string;
-    } | null> | null;
-    notifications?: {
+    };
+    notifications: {
       __typename?: "Notification";
       id?: string | null;
       counter?: number | null;
-    } | null;
-  } | null> | null;
+    };
+  }>;
+};
+
+export type GetUserQueryVariables = Exact<{
+  id: Scalars["String"]["input"];
+}>;
+
+export type GetUserQuery = {
+  __typename?: "Query";
+  getUser: {
+    __typename?: "User";
+    id?: string | null;
+    username?: string | null;
+    image?: string | null;
+  };
 };
 
 export type MsgsQueryVariables = Exact<{
@@ -244,81 +242,77 @@ export type MsgsQueryVariables = Exact<{
 
 export type MsgsQuery = {
   __typename?: "Query";
-  msgs?: Array<{
+  msgs: Array<{
     __typename?: "Message";
-    id: number;
+    id: string;
     text: string;
-    from?: string | null;
-    to?: string | null;
-  } | null> | null;
+    from: string;
+    to: string;
+  }>;
 };
 
 export type UsersQueryVariables = Exact<{ [key: string]: never }>;
 
 export type UsersQuery = {
   __typename?: "Query";
-  users?: Array<{
+  users: Array<{
     __typename?: "User";
     id?: string | null;
     username?: string | null;
     image?: string | null;
-  } | null> | null;
+  }>;
 };
 
 export type OnChatsSubscriptionVariables = Exact<{
-  id?: InputMaybe<Scalars["String"]["input"]>;
+  topic?: InputMaybe<Scalars["String"]["input"]>;
 }>;
 
 export type OnChatsSubscription = {
   __typename?: "Subscription";
   chatsSub: {
     __typename?: "ChatSub";
-    type?: string | null;
-    id?: string | null;
-    user1?: {
+    type: string;
+    id: string;
+    user1: {
       __typename?: "User";
       id?: string | null;
       username?: string | null;
-    } | null;
-    user2?: {
+    };
+    user2: {
       __typename?: "User";
       id?: string | null;
       username?: string | null;
-    } | null;
-    messages?: Array<{
-      __typename?: "Message";
-      id: number;
-      text: string;
-    } | null> | null;
-    notifications?: {
+    };
+    messages: Array<{ __typename?: "Message"; id: string; text: string }>;
+    notifications: {
       __typename?: "Notification";
       id?: string | null;
       counter?: number | null;
-    } | null;
+    };
   };
 };
 
 export type OnMessageSubscriptionVariables = Exact<{
-  id?: InputMaybe<Scalars["String"]["input"]>;
+  topic?: InputMaybe<Scalars["String"]["input"]>;
 }>;
 
 export type OnMessageSubscription = {
   __typename?: "Subscription";
   msgsSub: {
-    __typename?: "PubSubType";
+    __typename?: "MessageSub";
     type: string;
     msg?: {
       __typename?: "Message";
-      id: number;
+      id: string;
       text: string;
-      from?: string | null;
-      to?: string | null;
+      from: string;
+      to: string;
     } | null;
-    msgArr?: Array<{
+    msgsArr?: Array<{
       __typename?: "Message";
-      id: number;
+      id: string;
       text: string;
-    } | null> | null;
+    }> | null;
   };
 };
 
@@ -374,7 +368,7 @@ export type CreateChatMutationOptions = Apollo.BaseMutationOptions<
   CreateChatMutationVariables
 >;
 export const DeleteMsgDocument = gql`
-  mutation DeleteMsg($id: Int!, $chatId: String!) {
+  mutation DeleteMsg($id: Float!, $chatId: String!) {
     deleteMsg(id: $id, chatId: $chatId) {
       text
     }
@@ -424,7 +418,7 @@ export type DeleteMsgMutationOptions = Apollo.BaseMutationOptions<
   DeleteMsgMutationVariables
 >;
 export const SendMsgDocument = gql`
-  mutation SendMsg($text: String!, $id: String!, $to: String, $from: String) {
+  mutation SendMsg($text: String!, $id: String!, $to: String!, $from: String!) {
     sendMsg(text: $text, id: $id, to: $to, from: $from) {
       text
     }
@@ -474,7 +468,7 @@ export type SendMsgMutationOptions = Apollo.BaseMutationOptions<
   SendMsgMutationVariables
 >;
 export const UpdateMsgDocument = gql`
-  mutation UpdateMsg($id: Int!, $text: String!, $chatId: String!) {
+  mutation UpdateMsg($id: Float!, $text: String!, $chatId: String!) {
     updateMsg(id: $id, text: $text, chatId: $chatId) {
       id
       text
@@ -539,10 +533,6 @@ export const ChatsDocument = gql`
         image
         username
       }
-      messages {
-        id
-        text
-      }
       notifications {
         id
         counter
@@ -591,6 +581,56 @@ export type ChatsLazyQueryHookResult = ReturnType<typeof useChatsLazyQuery>;
 export type ChatsQueryResult = Apollo.QueryResult<
   ChatsQuery,
   ChatsQueryVariables
+>;
+export const GetUserDocument = gql`
+  query GetUser($id: String!) {
+    getUser(id: $id) {
+      id
+      username
+      image
+    }
+  }
+`;
+
+/**
+ * __useGetUserQuery__
+ *
+ * To run a query within a React component, call `useGetUserQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetUserQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetUserQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useGetUserQuery(
+  baseOptions: Apollo.QueryHookOptions<GetUserQuery, GetUserQueryVariables>
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useQuery<GetUserQuery, GetUserQueryVariables>(
+    GetUserDocument,
+    options
+  );
+}
+export function useGetUserLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<GetUserQuery, GetUserQueryVariables>
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useLazyQuery<GetUserQuery, GetUserQueryVariables>(
+    GetUserDocument,
+    options
+  );
+}
+export type GetUserQueryHookResult = ReturnType<typeof useGetUserQuery>;
+export type GetUserLazyQueryHookResult = ReturnType<typeof useGetUserLazyQuery>;
+export type GetUserQueryResult = Apollo.QueryResult<
+  GetUserQuery,
+  GetUserQueryVariables
 >;
 export const MsgsDocument = gql`
   query Msgs($id: String) {
@@ -687,8 +727,8 @@ export type UsersQueryResult = Apollo.QueryResult<
   UsersQueryVariables
 >;
 export const OnChatsDocument = gql`
-  subscription OnChats($id: String) {
-    chatsSub(id: $id) {
+  subscription OnChats($topic: String) {
+    chatsSub(topic: $topic) {
       type
       id
       user1 {
@@ -723,7 +763,7 @@ export const OnChatsDocument = gql`
  * @example
  * const { data, loading, error } = useOnChatsSubscription({
  *   variables: {
- *      id: // value for 'id'
+ *      topic: // value for 'topic'
  *   },
  * });
  */
@@ -745,8 +785,8 @@ export type OnChatsSubscriptionHookResult = ReturnType<
 export type OnChatsSubscriptionResult =
   Apollo.SubscriptionResult<OnChatsSubscription>;
 export const OnMessageDocument = gql`
-  subscription OnMessage($id: String) {
-    msgsSub(id: $id) {
+  subscription OnMessage($topic: String) {
+    msgsSub(topic: $topic) {
       msg {
         id
         text
@@ -754,7 +794,7 @@ export const OnMessageDocument = gql`
         to
       }
       type
-      msgArr {
+      msgsArr {
         id
         text
       }
@@ -774,7 +814,7 @@ export const OnMessageDocument = gql`
  * @example
  * const { data, loading, error } = useOnMessageSubscription({
  *   variables: {
- *      id: // value for 'id'
+ *      topic: // value for 'topic'
  *   },
  * });
  */

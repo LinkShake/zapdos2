@@ -1,0 +1,7 @@
+query GetUser($id: String!) {
+  getUser(id: $id) {
+    id
+    username
+    image
+  }
+}

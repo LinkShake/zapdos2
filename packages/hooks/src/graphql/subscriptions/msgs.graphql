@@ -1,5 +1,5 @@
-subscription OnMessage($id: String) {
-  msgsSub(id: $id) {
+subscription OnMessage($topic: String) {
+  msgsSub(topic: $topic) {
     msg {
       id
       text
@@ -7,7 +7,7 @@ subscription OnMessage($id: String) {
       to
     }
     type
-    msgArr {
+    msgsArr {
       id
       text
     }

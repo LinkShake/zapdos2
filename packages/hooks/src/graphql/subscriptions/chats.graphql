@@ -1,5 +1,5 @@
-subscription OnChats($id: String) {
-  chatsSub(id: $id) {
+subscription OnChats($topic: String) {
+  chatsSub(topic: $topic) {
     type
     id
     user1 {

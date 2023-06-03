@@ -11,10 +11,6 @@ query Chats($id: String, $params: String) {
       image
       username
     }
-    messages {
-      id
-      text
-    }
     notifications {
       id
       counter
