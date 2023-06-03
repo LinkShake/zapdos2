@@ -125,7 +125,7 @@ export type QueryGetUserArgs = {
 };
 
 export type QueryMsgsArgs = {
-  id?: InputMaybe<Scalars["String"]["input"]>;
+  chatId?: InputMaybe<Scalars["String"]["input"]>;
 };
 
 export type Subscription = {
@@ -167,6 +167,20 @@ export type DeleteMsgMutationVariables = Exact<{
 export type DeleteMsgMutation = {
   __typename?: "Mutation";
   deleteMsg: Array<{ __typename?: "Message"; text: string }>;
+};
+
+export type MarkAsReadMutationVariables = Exact<{
+  userId?: InputMaybe<Scalars["String"]["input"]>;
+  id?: InputMaybe<Scalars["String"]["input"]>;
+}>;
+
+export type MarkAsReadMutation = {
+  __typename?: "Mutation";
+  markAsRead: {
+    __typename?: "Notification";
+    id?: string | null;
+    counter?: number | null;
+  };
 };
 
 export type SendMsgMutationVariables = Exact<{
@@ -237,14 +251,14 @@ export type GetUserQuery = {
 };
 
 export type MsgsQueryVariables = Exact<{
-  id?: InputMaybe<Scalars["String"]["input"]>;
+  chatId?: InputMaybe<Scalars["String"]["input"]>;
 }>;
 
 export type MsgsQuery = {
   __typename?: "Query";
   msgs: Array<{
     __typename?: "Message";
-    id: string;
+    id: number;
     text: string;
     from: string;
     to: string;
@@ -416,6 +430,58 @@ export type DeleteMsgMutationResult = Apollo.MutationResult<DeleteMsgMutation>;
 export type DeleteMsgMutationOptions = Apollo.BaseMutationOptions<
   DeleteMsgMutation,
   DeleteMsgMutationVariables
+>;
+export const MarkAsReadDocument = gql`
+  mutation MarkAsRead($userId: String, $id: String) {
+    markAsRead(userId: $userId, id: $id) {
+      id
+      counter
+    }
+  }
+`;
+export type MarkAsReadMutationFn = Apollo.MutationFunction<
+  MarkAsReadMutation,
+  MarkAsReadMutationVariables
+>;
+
+/**
+ * __useMarkAsReadMutation__
+ *
+ * To run a mutation, you first call `useMarkAsReadMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useMarkAsReadMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [markAsReadMutation, { data, loading, error }] = useMarkAsReadMutation({
+ *   variables: {
+ *      userId: // value for 'userId'
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useMarkAsReadMutation(
+  baseOptions?: Apollo.MutationHookOptions<
+    MarkAsReadMutation,
+    MarkAsReadMutationVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<MarkAsReadMutation, MarkAsReadMutationVariables>(
+    MarkAsReadDocument,
+    options
+  );
+}
+export type MarkAsReadMutationHookResult = ReturnType<
+  typeof useMarkAsReadMutation
+>;
+export type MarkAsReadMutationResult =
+  Apollo.MutationResult<MarkAsReadMutation>;
+export type MarkAsReadMutationOptions = Apollo.BaseMutationOptions<
+  MarkAsReadMutation,
+  MarkAsReadMutationVariables
 >;
 export const SendMsgDocument = gql`
   mutation SendMsg($text: String!, $id: String!, $to: String!, $from: String!) {
@@ -633,8 +699,8 @@ export type GetUserQueryResult = Apollo.QueryResult<
   GetUserQueryVariables
 >;
 export const MsgsDocument = gql`
-  query Msgs($id: String) {
-    msgs(id: $id) {
+  query Msgs($chatId: String) {
+    msgs(chatId: $chatId) {
       id
       text
       from
@@ -655,7 +721,7 @@ export const MsgsDocument = gql`
  * @example
  * const { data, loading, error } = useMsgsQuery({
  *   variables: {
- *      id: // value for 'id'
+ *      chatId: // value for 'chatId'
  *   },
  * });
  */

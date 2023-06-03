@@ -14,11 +14,11 @@ import { pubSub } from "../src/pubsub";
 export class MessageResolver {
   @Query(() => [Message])
   async msgs(
-    @Arg("id", { nullable: true }) id: string
+    @Arg("chatId", { nullable: true }) chatId: string
   ): Promise<Array<Message>> {
     const msgs = await prisma.message.findMany({
       where: {
-        chatId: id,
+        chatId,
       },
     });
 

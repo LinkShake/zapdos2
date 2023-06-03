@@ -1,7 +1,15 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import { MsgMenu } from "./MsgMenu";
-import { useMessagesContext } from "hooks";
+import {
+  OnMessageDocument,
+  useDeleteMsgMutation,
+  useGetUserQuery,
+  useMessagesContext,
+  useMsgsQuery,
+  useSendMsgMutation,
+  useUpdateMsgMutation,
+} from "hooks";
 import { Grid, Textarea } from "@mantine/core";
 import { useMediaQuery } from "@mantine/hooks";
 import { ChatNavbar } from "./ChatNavbar";
@@ -12,28 +20,8 @@ import { IconSend } from "@tabler/icons-react";
 interface ChatProps {
   id: string;
   chatUserId: string;
-  sendMsg: ({
-    variables: { text, id, to, from },
-  }: {
-    variables: {
-      text: string;
-      id: string;
-      to: string;
-      from: string | undefined;
-    };
-  }) => void;
   setInputField: React.Dispatch<React.SetStateAction<string>>;
   inputField: string;
-  deleteMsg: ({
-    variables: { id, chatId },
-  }: {
-    variables: { id: number; chatId: string };
-  }) => void;
-  updateMsg: ({
-    variables: { id, chatId, text },
-  }: {
-    variables: { id: number; chatId: string; text: string };
-  }) => void;
   setChatId: React.Dispatch<React.SetStateAction<string>>;
   setChat: React.Dispatch<React.SetStateAction<boolean>>;
   setOpened: React.Dispatch<React.SetStateAction<boolean>>;
@@ -42,29 +30,16 @@ interface ChatProps {
 export const Chat: React.FC<ChatProps> = ({
   id,
   chatUserId,
-  sendMsg,
   setInputField,
   inputField,
-  deleteMsg,
-  updateMsg,
   setChatId,
   setChat,
   setOpened,
 }) => {
   // const matchPaddingChange = useMediaQuery("(max-width: 990px)");
-  const { data: user } = useQuery(
-    gql`
-      query getUser($id: String!) {
-        getUser(id: $id) {
-          username
-          image
-        }
-      }
-    `,
-    {
-      variables: { id: chatUserId },
-    }
-  );
+  const { data: user } = useGetUserQuery({
+    variables: { id: chatUserId },
+  });
   const { user: me } = useUser();
   const chatMsgsRef: null | React.RefObject<any> = useRef(null);
   const [userMsgAction, setUserMsgAction] = useState<"sendMsg" | "updateMsg">(
@@ -73,11 +48,12 @@ export const Chat: React.FC<ChatProps> = ({
   const inputRef: any = useRef(null);
   const [currMsgId, setCurrMsgId] = useState<number>(0);
 
-  // @ts-expect-error
-  const [{ data, error, subscribeToMore, loading }, subscription] =
-    useMessagesContext({
-      id,
-    });
+  const { data, error, subscribeToMore, loading } = useMsgsQuery({
+    variables: { chatId: id },
+  });
+  const [sendMsg] = useSendMsgMutation();
+  const [updateMsg] = useUpdateMsgMutation();
+  const [deleteMsg] = useDeleteMsgMutation();
 
   const match = useMediaQuery("(max-width: 768px)");
 
@@ -99,7 +75,7 @@ export const Chat: React.FC<ChatProps> = ({
             text: inputField,
             id: id,
             to: chatUserId,
-            from: me?.id,
+            from: me?.id as string,
           },
         })
       : updateMsg({
@@ -114,26 +90,34 @@ export const Chat: React.FC<ChatProps> = ({
       chatMsgsRef.current?.scrollTo(0, 0);
     }
     subscribeToMore({
-      document: subscription,
+      document: OnMessageDocument,
       variables: { topic: id },
       // @ts-ignore
       updateQuery: (prev, { subscriptionData }) => {
         if (!subscriptionData.data) return prev;
 
+        // @ts-ignore
         if (subscriptionData.data.msgsSub.type === "newMsg") {
           return Object.assign({}, prev, {
+            // @ts-ignore
             msgs: [...prev.msgs, subscriptionData.data.msgsSub.msg],
           });
+          // @ts-ignore
         } else if (subscriptionData.data.msgsSub.type === "deletedMsg") {
           return Object.assign({}, prev, {
+            // @ts-ignore
             msgs: [...subscriptionData.data.msgsSub.msgArr],
           });
+          // @ts-ignore
         } else if (subscriptionData.data.msgsSub.type === "updatedMsg") {
           const updatedMsgsQueue = prev.msgs.map(
+            // @ts-ignore
             (data: { id: number; text: string }) => {
+              // @ts-ignore
               if (data.id === subscriptionData.data.msgsSub.msg.id) {
                 return {
                   id: data.id,
+                  // @ts-ignore
                   text: subscriptionData.data.msgsSub.msg.text,
                 };
               }
@@ -177,8 +161,8 @@ export const Chat: React.FC<ChatProps> = ({
       }}
     >
       <ChatNavbar
-        profile={user?.getUser?.image}
-        userName={user?.getUser?.username}
+        profile={user?.getUser?.image as string}
+        userName={user?.getUser?.username as string}
         setChatId={setChatId}
         setChat={setChat}
         setOpened={setOpened}
@@ -203,33 +187,21 @@ export const Chat: React.FC<ChatProps> = ({
           // zIndex: "100",
         }}
       >
-        {data?.msgs?.map(
-          ({
-            text,
-            id: msgId,
-            from,
-            to,
-          }: {
-            text: string;
-            id: number;
-            from: string;
-            to: string;
-          }) => (
-            <MsgMenu
-              key={msgId}
-              text={text}
-              id={msgId}
-              deleteMsg={deleteMsg}
-              updateMsg={updateMsg}
-              onTryUpdatingMsg={onTryUpdatingMsg}
-              chatId={id}
-              myId={me?.id}
-              from={from}
-              to={to}
-              msgRef={chatMsgsRef}
-            />
-          )
-        )}
+        {data?.msgs?.map(({ text, id: msgId, from, to }) => (
+          <MsgMenu
+            key={msgId}
+            text={text}
+            id={msgId}
+            deleteMsg={deleteMsg}
+            updateMsg={updateMsg}
+            onTryUpdatingMsg={onTryUpdatingMsg}
+            chatId={id}
+            myId={me?.id}
+            from={from}
+            to={to}
+            msgRef={chatMsgsRef}
+          />
+        ))}
       </ul>
       <form
         onSubmit={(e) => {
@@ -240,7 +212,7 @@ export const Chat: React.FC<ChatProps> = ({
                   text: inputField,
                   id: id,
                   to: chatUserId,
-                  from: me?.id,
+                  from: me?.id as string,
                 },
               })
             : updateMsg({

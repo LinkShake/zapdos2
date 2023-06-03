@@ -1,6 +1,7 @@
 import { Avatar, Navbar, Title, Button } from "@mantine/core";
 import { useMutation, gql } from "@apollo/client";
 import { useRouter } from "next/navigation";
+import { useCreateChatMutation } from "hooks";
 
 interface User {
   id: string;
@@ -40,16 +41,7 @@ export const ChatPreview: React.FC<ChatPreviewProps> = ({
   onClick,
   variant,
 }) => {
-  const router = useRouter();
-  const [createChat] = useMutation(
-    gql`
-      mutation createChat($id: String!, $id2: String!) {
-        createChat(id: $id, id2: $id2) {
-          id
-        }
-      }
-    `
-  );
+  const [createChat] = useCreateChatMutation();
 
   return (
     <Navbar.Section
@@ -67,7 +59,7 @@ export const ChatPreview: React.FC<ChatPreviewProps> = ({
           });
           // }
         } else if (variant === "userAvatar") {
-          createChat({ variables: { id: myId, id2: chatUser.id } });
+          createChat({ variables: { id: myId as string, id2: chatUser.id } });
         }
       }}
       style={{

@@ -15,6 +15,7 @@ import { Chat } from "./Chat";
 import { useMutation, gql } from "@apollo/client";
 import { DashboardNavbar } from "./DashboardNavbar";
 import { ChatsLoading } from "./loading/ChatsLoading";
+import { useMarkAsReadMutation } from "hooks";
 
 interface User {
   id: string;
@@ -73,13 +74,7 @@ const markAsReadGql = gql`
 
 export const App: React.FC<AppShellProps> = ({
   currUser,
-  setTheme,
-  themeState,
-  sendMsg,
-  UserProfile,
   chats,
-  deleteMsg,
-  updateMsg,
   isDataLoading,
 }) => {
   const theme = useMantineTheme();
@@ -91,7 +86,7 @@ export const App: React.FC<AppShellProps> = ({
   const [chat, setChat] = useState<boolean>(false);
   const [opened, setOpened] = useState<boolean>(!chat);
   const [inputField, setInputField] = useState<string>("");
-  const [markAsRead] = useMutation(markAsReadGql, {
+  const [markAsRead] = useMarkAsReadMutation({
     variables: { id: chatId, userId: currUser },
   });
 
@@ -261,11 +256,8 @@ export const App: React.FC<AppShellProps> = ({
         <Chat
           id={chatId}
           chatUserId={chatUserId}
-          sendMsg={sendMsg}
           setInputField={setInputField}
           inputField={inputField}
-          deleteMsg={deleteMsg}
-          updateMsg={updateMsg}
           setChatId={setChatId}
           setChat={setChat}
           setOpened={setOpened}

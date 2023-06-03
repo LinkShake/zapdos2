@@ -1,5 +1,5 @@
-query Msgs($id: String) {
-  msgs(id: $id) {
+query Msgs($chatId: String) {
+  msgs(chatId: $chatId) {
     id
     text
     from

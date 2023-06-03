@@ -1,0 +1,6 @@
+mutation MarkAsRead($userId: String, $id: String) {
+  markAsRead(userId: $userId, id: $id) {
+    id
+    counter
+  }
+}

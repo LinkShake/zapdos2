@@ -6,6 +6,7 @@ import { useMediaQuery } from "@mantine/hooks";
 import { useQuery, gql } from "@apollo/client";
 import { ChatPreview } from "./ChatPreview";
 import { useUser } from "@clerk/clerk-react";
+import { useUsersQuery } from "hooks";
 
 interface User {
   id: string;
@@ -20,23 +21,8 @@ export const NewChatModal = () => {
   const ctx = useContext(NewChatModalContext);
   const theme = useMantineTheme();
   const [searchedUser, setSearchedUser] = useState<string>("");
-  const { data, error } = useQuery(
-    gql`
-      query {
-        users {
-          id
-          username
-          image
-        }
-      }
-    `,
-    {
-      onError(error) {
-        console.log(error.message);
-      },
-    }
-  );
-  const [usersArr, setUsersArr] = useState<User[]>(data?.users);
+  const { data, error } = useUsersQuery();
+  const [usersArr, setUsersArr] = useState<User[]>(data?.users as User[]);
   const updatedUsersArr = useMemo(() => {
     console.log(searchedUser);
     return searchedUser
@@ -45,7 +31,7 @@ export const NewChatModal = () => {
             username?.toLowerCase().includes(searchedUser) ||
             username?.toUpperCase().includes(searchedUser)
         )
-      : data?.users;
+      : (data?.users as User[]);
   }, [usersArr, searchedUser, data?.users]);
 
   useEffect(() => {
@@ -60,7 +46,7 @@ export const NewChatModal = () => {
   });
 
   useEffect(() => {
-    setUsersArr(data?.users);
+    setUsersArr(data?.users as User[]);
   }, [data?.users]);
 
   if (error) {

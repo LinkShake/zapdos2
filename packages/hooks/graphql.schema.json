@@ -819,7 +819,7 @@
             "description": null,
             "args": [
               {
-                "name": "id",
+                "name": "chatId",
                 "description": null,
                 "type": {
                   "kind": "SCALAR",
