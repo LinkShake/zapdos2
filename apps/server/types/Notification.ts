@@ -7,4 +7,7 @@ export class Notification {
 
   @Field({ nullable: true })
   counter: number;
+
+  @Field({ nullable: true })
+  userId: string;
 }

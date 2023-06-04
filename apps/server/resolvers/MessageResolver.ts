@@ -64,17 +64,17 @@ export class MessageResolver {
             userId: to,
           },
           {
-            id,
+            chatId: id,
           },
         ],
       },
     });
 
-    // @ts-ignore
-    if (!prevNotifications && !prevNotifications?.counter) {
+    console.log("prevNotifications: ", prevNotifications);
+
+    if (!prevNotifications || prevNotifications.userId !== from) {
       const newNotification = await prisma.notification.create({
         data: {
-          id,
           chatId: id,
           userId: to,
           counter: 1,
@@ -85,7 +85,8 @@ export class MessageResolver {
         type: "newNotification",
         notifications: {
           id,
-          counter: newNotification?.counter,
+          counter: newNotification.counter,
+          userId: newNotification?.userId,
         },
       });
     }
@@ -97,12 +98,12 @@ export class MessageResolver {
             userId: to,
           },
           {
-            id,
+            chatId: id,
           },
         ],
       },
       data: {
-        id,
+        // chatId: id,
         counter: prevNotifications?.counter ? prevNotifications.counter + 1 : 1,
       },
     });
@@ -114,7 +115,7 @@ export class MessageResolver {
             userId: to,
           },
           {
-            id,
+            chatId: id,
           },
         ],
       },
@@ -127,6 +128,7 @@ export class MessageResolver {
       notifications: {
         id,
         counter: updatedNotifications?.counter,
+        userId: updatedNotifications?.userId,
       },
     });
 

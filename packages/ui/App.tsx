@@ -16,6 +16,7 @@ import { useMutation, gql } from "@apollo/client";
 import { DashboardNavbar } from "./DashboardNavbar";
 import { ChatsLoading } from "./loading/ChatsLoading";
 import { useMarkAsReadMutation } from "hooks";
+import { useUser } from "@clerk/clerk-react";
 
 interface User {
   id: string;
@@ -57,6 +58,7 @@ export const App: React.FC<AppShellProps> = ({
   const [markAsRead] = useMarkAsReadMutation({
     variables: { id: chatId, userId: currUser },
   });
+  const { user: me } = useUser();
 
   return (
     <AppShell
@@ -116,6 +118,7 @@ export const App: React.FC<AppShellProps> = ({
                 <ChatPreview
                   onClick={markAsRead}
                   key={chatMetaData.id}
+                  myId={me?.id}
                   variant="chatAvatar"
                   chatUser={chatUser}
                   setChat={setChat}

@@ -14,9 +14,10 @@ export class NotificationResolver {
     @Arg("userId", { nullable: true }) userId: string,
     @PubSub() pubSub: PubSubEngine
   ): Promise<Notification> {
+    console.log("userId: ", userId);
     await prisma.notification.updateMany({
       where: {
-        AND: [{ userId }, { id }],
+        AND: [{ userId }, { chatId: id }],
       },
       data: {
         counter: 0,
@@ -25,9 +26,11 @@ export class NotificationResolver {
 
     const updatedNotifications = await prisma.notification.findFirst({
       where: {
-        AND: [{ userId }, { id }],
+        AND: [{ userId }, { chatId: id }],
       },
     });
+
+    console.log(updatedNotifications);
 
     await pubSub.publish(`chatsSub_${userId}`, {
       type: "newNotification",
